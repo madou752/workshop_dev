@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { customAlphabet } from "nanoid";
-import { db } from "../db.js";
+import { findAllProducts, findOrderById, findProductById, insertOrder } from "../db.js";
 import { renderReceipt } from "../receipt.js";
 import type { Order, OrderItem } from "../types.js";
 
@@ -12,13 +12,13 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-function toOrderConfirmation(order: Order) {
+async function toOrderConfirmation(order: Order) {
   return {
     orderId: order.orderId,
     createdAt: order.createdAt,
     totalEUR: order.totalEUR,
     status: order.status,
-    receiptHtml: renderReceipt(order, db.data.products),
+    receiptHtml: renderReceipt(order, await findAllProducts()),
   };
 }
 
@@ -46,7 +46,7 @@ ordersRouter.post("/", async (req, res) => {
   let totalEUR = 0;
   const validatedItems: OrderItem[] = [];
   for (const item of items) {
-    const product = db.data.products.find((p) => p.id === item.productId);
+    const product = await findProductById(item.productId);
     const size = product?.sizes.find((s) => s.id === item.sizeId);
     if (!product || !size) {
       res.status(400).json({ error: "Produit inconnu dans le panier." });
@@ -81,17 +81,16 @@ ordersRouter.post("/", async (req, res) => {
     status: "confirmed",
   };
 
-  db.data.orders.push(order);
-  await db.write();
+  await insertOrder(order);
 
-  res.status(201).json(toOrderConfirmation(order));
+  res.status(201).json(await toOrderConfirmation(order));
 });
 
-ordersRouter.get("/:orderId", (req, res) => {
-  const order = db.data.orders.find((o) => o.orderId === req.params.orderId);
+ordersRouter.get("/:orderId", async (req, res) => {
+  const order = await findOrderById(req.params.orderId);
   if (!order) {
     res.status(404).json({ error: "Commande introuvable" });
     return;
   }
-  res.json(toOrderConfirmation(order));
+  res.json(await toOrderConfirmation(order));
 });
