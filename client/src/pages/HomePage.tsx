@@ -1,27 +1,29 @@
 import { Link } from "react-router-dom";
-import { useGetProductsQuery } from "../api/apiSlice";
-import ProductCard from "../components/ProductCard";
+import { useGetProductsQuery } from "@/api/apiSlice";
+import ProductCard from "@/components/ProductCard";
+import AirBottle from "@/components/AirBottle";
+import { Button } from "@/components/ui/button";
 
 const categories = [
   {
     slug: "desert",
-    label: "Desert Air",
-    blurb: "Dry, ancient, unbothered.",
+    label: "Air du Désert",
+    blurb: "Sec, ancien, imperturbable.",
   },
   {
     slug: "city",
-    label: "City Air",
-    blurb: "Notes of ambition and espresso.",
+    label: "Air Urbain",
+    blurb: "Notes d'espresso et d'ambition.",
   },
   {
     slug: "landmark",
-    label: "Landmark Air",
-    blurb: "Thin air from tall places.",
+    label: "Air de Monument",
+    blurb: "Air raréfié des lieux élevés.",
   },
   {
     slug: "celebrity",
-    label: "Celebrity Collab",
-    blurb: "Air, but make it famous.",
+    label: "Collab Célébrité",
+    blurb: "De l'air, mais glamour.",
   },
 ];
 
@@ -31,48 +33,48 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="border-b border-air-950/10 bg-air-900 text-air-50">
+      <section className="border-b border-ardoise bg-nuit-profond text-ivoire">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-24 sm:grid-cols-2 sm:items-center">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-gold-400">
-              Est. 2019 &mdash; Small-batch atmosphere
+            <p className="text-xs uppercase tracking-[0.3em] text-or">
+              Édition 01 &mdash; Maison d&rsquo;air d&rsquo;exception
             </p>
             <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-              The air is different up here.
+              Respirer est un luxe.
             </h1>
-            <p className="mt-5 max-w-md text-air-100/80">
-              Aéther sources, filters, and bottles the world&rsquo;s most
-              coveted air &mdash; from the Sahara at dawn to the summit of
-              Everest &mdash; for collectors who have everything except this.
+            <p className="mt-5 max-w-md text-ivoire/70">
+              Une identité sobre pour un produit qui ne l&rsquo;est pas. Le
+              vide, mis en bouteille, présenté avec le sérieux qu&rsquo;il
+              mérite &mdash; du Sahara à l&rsquo;aube jusqu&rsquo;au sommet
+              de l&rsquo;Everest.
             </p>
-            <Link
-              to="/shop"
-              className="mt-8 inline-block rounded-full bg-gold-500 px-7 py-3 text-sm font-medium uppercase tracking-wide text-air-950 transition-colors hover:bg-gold-400"
-            >
-              Shop the Collection
-            </Link>
+            <Button asChild size="lg" className="mt-8 rounded-full">
+              <Link to="/boutique">Découvrir la Collection</Link>
+            </Button>
           </div>
-          <div className="aspect-square overflow-hidden rounded-3xl border border-air-50/10">
-            <img
-              src="https://picsum.photos/seed/aether-hero/800/800"
-              alt="A bottle of Aéther air on display"
-              className="h-full w-full object-cover"
+          <div className="flex items-center justify-center rounded-3xl border border-ivoire/10 bg-nuit py-12">
+            <AirBottle
+              size="large"
+              tagline="Air de haute altitude"
+              altitude="2 847 m"
+              volumeMl={500}
+              lotNumber="N° 0001"
             />
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="font-serif text-2xl text-air-950">Collections</h2>
+        <h2 className="font-serif text-2xl text-ivoire">Collections</h2>
         <div className="mt-6 grid gap-4 sm:grid-cols-4">
           {categories.map((c) => (
             <Link
               key={c.slug}
-              to={`/shop?category=${c.slug}`}
-              className="rounded-2xl border border-air-950/10 p-5 transition-colors hover:border-gold-400"
+              to={`/boutique?category=${c.slug}`}
+              className="rounded border border-ardoise p-5 transition-colors hover:border-or"
             >
-              <p className="font-serif text-lg text-air-950">{c.label}</p>
-              <p className="mt-1 text-sm text-air-950/60">{c.blurb}</p>
+              <p className="font-serif text-lg text-ivoire">{c.label}</p>
+              <p className="mt-1 text-sm text-gris">{c.blurb}</p>
             </Link>
           ))}
         </div>
@@ -80,8 +82,8 @@ export default function HomePage() {
 
       {featured.length > 0 && (
         <section className="mx-auto max-w-6xl px-6 pb-20">
-          <h2 className="font-serif text-2xl text-air-950">
-            Currently Trending
+          <h2 className="font-serif text-2xl text-ivoire">
+            Tendance du Moment
           </h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-3">
             {featured.map((product) => (

@@ -1,18 +1,124 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-serif: "Playfair Display", Georgia, serif;
-  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
-  --color-air-950: #0b0d10;
-  --color-air-900: #12151a;
-  --color-air-100: #f3f1ea;
-  --color-air-50: #fbfaf6;
-  --color-gold-400: #c9a253;
-  --color-gold-500: #b3893a;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Jost", system-ui, "Segoe UI", Roboto, sans-serif;
+
+  /* Lahist'air charter palette */
+  --color-nuit: #0b0f14;
+  --color-nuit-profond: #07090c;
+  --color-brume: #1a222b;
+  --color-brume-profond: #0e141b;
+  --color-ardoise: #1f2933;
+  --color-ivoire: #ede8df;
+  --color-or: #c9a961;
+  --color-or-clair: #d8bc7a;
+  --color-or-fonce: #8e7440;
+  --color-or-moyen: #a88a48;
+  --color-gris: #8e9aa6;
+  --color-gris-clair: #b6bec7;
+  --color-gris-fonce: #4a5561;
+}
+
+@theme inline {
+  --font-heading: var(--font-serif);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * Lahist'air is a single fixed dark identity (no light/dark toggle) --
+ * these are the only theme values the app uses, mapped from the brand
+ * charter straight onto shadcn's semantic tokens.
+ */
+:root {
+  --background: #0b0f14;
+  --foreground: #ede8df;
+  --card: #0e141b;
+  --card-foreground: #ede8df;
+  --popover: #0e141b;
+  --popover-foreground: #ede8df;
+  --primary: #c9a961;
+  --primary-foreground: #0b0f14;
+  --secondary: #1a222b;
+  --secondary-foreground: #ede8df;
+  --muted: #1a222b;
+  --muted-foreground: #8e9aa6;
+  --accent: #1a222b;
+  --accent-foreground: #ede8df;
+  --destructive: #a23b34;
+  --destructive-foreground: #ede8df;
+  --border: #1f2933;
+  --input: #1f2933;
+  --ring: #c9a961;
+  --chart-1: #c9a961;
+  --chart-2: #8e9aa6;
+  --chart-3: #d8bc7a;
+  --chart-4: #4a5561;
+  --chart-5: #b6bec7;
+  --radius: 0.25rem;
+  --sidebar: #0e141b;
+  --sidebar-foreground: #ede8df;
+  --sidebar-primary: #c9a961;
+  --sidebar-primary-foreground: #0b0f14;
+  --sidebar-accent: #1a222b;
+  --sidebar-accent-foreground: #ede8df;
+  --sidebar-border: #1f2933;
+  --sidebar-ring: #c9a961;
 }
 
 body {
-  background-color: var(--color-air-50);
-  color: var(--color-air-950);
-  font-family: var(--font-sans);
+  background-color: var(--color-nuit-profond);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }

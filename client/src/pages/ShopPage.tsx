@@ -1,14 +1,14 @@
 import { useSearchParams } from "react-router-dom";
-import { useGetProductsQuery } from "../api/apiSlice";
-import ProductCard from "../components/ProductCard";
-import type { ProductCategory } from "../types/product";
+import { useGetProductsQuery } from "@/api/apiSlice";
+import ProductCard from "@/components/ProductCard";
+import type { ProductCategory } from "@/types/product";
 
 const filters: { value: ProductCategory | "all"; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "desert", label: "Desert Air" },
-  { value: "city", label: "City Air" },
-  { value: "landmark", label: "Landmark Air" },
-  { value: "celebrity", label: "Celebrity Collab" },
+  { value: "all", label: "Tout" },
+  { value: "desert", label: "Air du Désert" },
+  { value: "city", label: "Air Urbain" },
+  { value: "landmark", label: "Air de Monument" },
+  { value: "celebrity", label: "Collab Célébrité" },
 ];
 
 export default function ShopPage() {
@@ -23,10 +23,10 @@ export default function ShopPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-14">
-      <h1 className="font-serif text-3xl text-air-950">The Collection</h1>
-      <p className="mt-2 max-w-xl text-air-950/60">
-        Every bottle is hand-sealed and numbered. Prices reflect rarity, not
-        volume.
+      <h1 className="font-serif text-3xl text-ivoire">La Collection</h1>
+      <p className="mt-2 max-w-xl text-gris">
+        Chaque flacon est scellé à la main et numéroté. Le prix reflète la
+        rareté, pas le volume.
       </p>
 
       <div className="mt-8 flex flex-wrap gap-2">
@@ -41,8 +41,8 @@ export default function ShopPage() {
             }
             className={`rounded-full border px-4 py-2 text-sm transition-colors ${
               activeCategory === f.value
-                ? "border-air-950 bg-air-950 text-air-50"
-                : "border-air-950/15 text-air-950/70 hover:border-air-950/40"
+                ? "border-or bg-or text-nuit"
+                : "border-ardoise text-gris hover:border-gris"
             }`}
           >
             {f.label}
@@ -51,11 +51,12 @@ export default function ShopPage() {
       </div>
 
       {isLoading && (
-        <p className="mt-10 text-air-950/60">Loading the collection...</p>
+        <p className="mt-10 text-gris">Chargement de la collection...</p>
       )}
       {isError && (
-        <p className="mt-10 text-red-600">
-          Couldn&rsquo;t reach the air cellar. Is the server running?
+        <p className="mt-10 text-destructive">
+          Impossible d&rsquo;atteindre la cave à air. Le serveur est-il
+          lancé&nbsp;?
         </p>
       )}
 

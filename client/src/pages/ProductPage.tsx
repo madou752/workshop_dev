@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useGetProductBySlugQuery } from "../api/apiSlice";
-import { useAppDispatch } from "../app/hooks";
-import { addLine } from "../features/cart/cartSlice";
-import SizeSelector from "../components/SizeSelector";
+import { useGetProductBySlugQuery } from "@/api/apiSlice";
+import { useAppDispatch } from "@/app/hooks";
+import { addLine } from "@/features/cart/cartSlice";
+import SizeSelector from "@/components/SizeSelector";
+import AirBottle from "@/components/AirBottle";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,8 +22,8 @@ export default function ProductPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-6xl px-6 py-20 text-air-950/60">
-        Loading...
+      <div className="mx-auto max-w-6xl px-6 py-20 text-gris">
+        Chargement...
       </div>
     );
   }
@@ -27,9 +31,9 @@ export default function ProductPage() {
   if (isError || !product) {
     return (
       <div className="mx-auto max-w-6xl px-6 py-20">
-        <p className="text-air-950/70">This bottle sold out of existence.</p>
-        <Link to="/shop" className="mt-4 inline-block text-gold-500">
-          Back to the collection
+        <p className="text-ivoire/70">Ce flacon a disparu dans l&rsquo;air.</p>
+        <Link to="/boutique" className="mt-4 inline-block text-or">
+          Retour à la collection
         </Link>
       </div>
     );
@@ -47,37 +51,54 @@ export default function ProductPage() {
         sizeLabel: activeSize.label,
         priceEUR: activeSize.priceEUR,
         quantity: 1,
-        image: product.image,
       }),
     );
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
   };
 
+  const specs = [
+    { label: "Contenance", value: `${activeSize.volumeMl} ml` },
+    { label: "Origine", value: product.origin },
+    { label: "Composition", value: product.composition },
+    { label: "Altitude", value: product.altitude },
+    { label: "Lot", value: product.lotNumber },
+    { label: "Prix", value: `${activeSize.priceEUR} €`, accent: true },
+  ];
+
   return (
     <div className="mx-auto max-w-6xl px-6 py-14">
       <div className="grid gap-12 sm:grid-cols-2">
-        <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-air-100">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="h-full w-full object-cover"
+        <div className="flex items-center justify-center rounded-3xl border border-ardoise bg-nuit-profond py-14">
+          <AirBottle
+            size="large"
+            tagline={product.tagline}
+            altitude={product.altitude}
+            volumeMl={activeSize.volumeMl}
+            lotNumber={product.lotNumber}
           />
         </div>
         <div>
-          <p className="text-xs uppercase tracking-wide text-gold-500">
-            {product.origin}
-          </p>
-          <h1 className="mt-2 font-serif text-3xl text-air-950">
+          <div className="flex items-center gap-3">
+            <p className="text-xs uppercase tracking-wide text-or">
+              {product.origin}
+            </p>
+            {product.limitedEdition && (
+              <Badge className="uppercase tracking-wide">
+                Édition Limitée
+              </Badge>
+            )}
+          </div>
+          <h1 className="mt-2 font-serif text-3xl text-ivoire">
             {product.name}
           </h1>
-          <p className="mt-3 text-air-950/70">{product.description}</p>
+          <p className="mt-3 text-ivoire/70">{product.description}</p>
 
           <ul className="mt-5 flex flex-wrap gap-2">
             {product.notes.map((note) => (
               <li
                 key={note}
-                className="rounded-full bg-air-100 px-3 py-1 text-xs text-air-950/70"
+                className="rounded-full bg-brume px-3 py-1 text-xs text-ivoire/70"
               >
                 {note}
               </li>
@@ -85,8 +106,8 @@ export default function ProductPage() {
           </ul>
 
           <div className="mt-8">
-            <p className="mb-3 text-sm font-medium uppercase tracking-wide text-air-950/70">
-              Choose a size
+            <p className="mb-3 text-sm font-medium uppercase tracking-wide text-ivoire/70">
+              Choisissez un format
             </p>
             <SizeSelector
               sizes={product.sizes}
@@ -96,15 +117,11 @@ export default function ProductPage() {
           </div>
 
           <div className="mt-8 flex items-center gap-4">
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              className="rounded-full bg-air-950 px-7 py-3 text-sm font-medium uppercase tracking-wide text-air-50 transition-colors hover:bg-air-900"
-            >
-              Add to Cart &mdash; &euro;{activeSize.priceEUR}
-            </button>
+            <Button size="lg" className="rounded-full" onClick={handleAddToCart}>
+              Ajouter au panier &mdash; {activeSize.priceEUR}&nbsp;&euro;
+            </Button>
             {justAdded && (
-              <span className="text-sm text-gold-500">Added to cart</span>
+              <span className="text-sm text-or">Ajouté au panier</span>
             )}
           </div>
 
@@ -112,12 +129,28 @@ export default function ProductPage() {
             type="button"
             onClick={() => {
               handleAddToCart();
-              navigate("/checkout");
+              navigate("/commande");
             }}
-            className="mt-3 block text-sm text-air-950/60 underline underline-offset-4 hover:text-air-950"
+            className="mt-3 block text-sm text-ivoire/50 underline underline-offset-4 hover:text-ivoire"
           >
-            Buy now
+            Acheter maintenant
           </button>
+
+          <Separator className="my-8" />
+
+          <dl className="grid gap-3 text-sm">
+            {specs.map((spec) => (
+              <div
+                key={spec.label}
+                className="flex items-center justify-between border-b border-ardoise pb-2"
+              >
+                <dt className="text-gris">{spec.label}</dt>
+                <dd className={spec.accent ? "text-or" : "text-ivoire"}>
+                  {spec.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </div>
     </div>

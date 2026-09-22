@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import type { OrderConfirmation } from "../types/product";
+import type { OrderConfirmation } from "@/types/product";
+import { Button } from "@/components/ui/button";
 
 export default function OrderConfirmationPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -21,9 +22,9 @@ export default function OrderConfirmationPage() {
   if (notFound) {
     return (
       <div className="mx-auto max-w-2xl px-6 py-20 text-center">
-        <p className="text-air-950/70">We couldn&rsquo;t find that order.</p>
-        <Link to="/shop" className="mt-4 inline-block text-gold-500">
-          Back to the collection
+        <p className="text-ivoire/70">Cette commande est introuvable.</p>
+        <Link to="/boutique" className="mt-4 inline-block text-or">
+          Retour à la collection
         </Link>
       </div>
     );
@@ -31,8 +32,8 @@ export default function OrderConfirmationPage() {
 
   if (!order) {
     return (
-      <div className="mx-auto max-w-2xl px-6 py-20 text-center text-air-950/60">
-        Loading your receipt...
+      <div className="mx-auto max-w-2xl px-6 py-20 text-center text-gris">
+        Chargement de votre reçu...
       </div>
     );
   }
@@ -40,31 +41,28 @@ export default function OrderConfirmationPage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-20">
       <div className="text-center">
-        <p className="text-xs uppercase tracking-[0.3em] text-gold-500">
-          Order confirmed
+        <p className="text-xs uppercase tracking-[0.3em] text-or">
+          Commande confirmée
         </p>
-        <h1 className="mt-3 font-serif text-3xl text-air-950">
-          Thank you. Your air is being decanted.
+        <h1 className="mt-3 font-serif text-3xl text-ivoire">
+          Merci. Votre air est en cours de décantation.
         </h1>
-        <p className="mt-2 text-sm text-air-950/60">
-          Order {order.orderId} &middot;{" "}
-          {new Date(order.createdAt).toLocaleString()}
+        <p className="mt-2 text-sm text-gris">
+          Commande {order.orderId} &middot;{" "}
+          {new Date(order.createdAt).toLocaleString("fr-FR")}
         </p>
       </div>
 
       <div
-        className="mt-10 rounded-2xl border border-air-950/10 bg-air-50 p-6"
+        className="mt-10 rounded border border-ardoise bg-brume-profond p-6"
         // Server-rendered receipt (caveman template) — our own trusted content.
         dangerouslySetInnerHTML={{ __html: order.receiptHtml }}
       />
 
       <div className="mt-10 text-center">
-        <Link
-          to="/shop"
-          className="inline-block rounded-full bg-air-950 px-6 py-3 text-sm uppercase tracking-wide text-air-50"
-        >
-          Continue shopping
-        </Link>
+        <Button asChild size="lg" className="rounded-full">
+          <Link to="/boutique">Poursuivre mes achats</Link>
+        </Button>
       </div>
     </div>
   );

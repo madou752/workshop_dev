@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { clearCart } from "../features/cart/cartSlice";
-import { usePlaceOrderMutation } from "../api/apiSlice";
-import CreditCardForm, { type CardDetails } from "../components/CreditCardForm";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { clearCart } from "@/features/cart/cartSlice";
+import { usePlaceOrderMutation } from "@/api/apiSlice";
+import CreditCardForm, { type CardDetails } from "@/components/CreditCardForm";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface ShippingDetails {
   fullName: string;
@@ -47,8 +50,8 @@ export default function CheckoutPage() {
 
   if (lines.length === 0) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-20 text-center text-air-950/70">
-        Your cart is empty &mdash; nothing to check out.
+      <div className="mx-auto max-w-3xl px-6 py-20 text-center text-ivoire/60">
+        Votre panier est vide &mdash; rien à commander.
       </div>
     );
   }
@@ -59,7 +62,7 @@ export default function CheckoutPage() {
 
     const digits = card.cardNumber.replace(/\D/g, "");
     if (digits.length < 12) {
-      setError("That card number looks incomplete.");
+      setError("Ce numéro de carte semble incomplet.");
       return;
     }
 
@@ -85,111 +88,99 @@ export default function CheckoutPage() {
       }).unwrap();
 
       dispatch(clearCart());
-      navigate(`/order/${result.orderId}`);
+      navigate(`/confirmation/${result.orderId}`);
     } catch {
-      setError("The air cellar couldn't confirm your order. Try again.");
+      setError("La cave à air n'a pas pu confirmer votre commande. Réessayez.");
     }
   };
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-14">
-      <h1 className="font-serif text-3xl text-air-950">Checkout</h1>
+      <h1 className="font-serif text-3xl text-ivoire">Commande</h1>
 
       <form onSubmit={handleSubmit} className="mt-8 grid gap-10 sm:grid-cols-2">
         <div className="space-y-6">
-          <div className="space-y-4 rounded-2xl border border-air-950/10 bg-air-50 p-6">
-            <p className="text-sm font-medium uppercase tracking-wide text-air-950/70">
-              Shipping details
+          <div className="space-y-4 rounded border border-ardoise bg-brume-profond p-6">
+            <p className="text-sm font-medium uppercase tracking-wide text-ivoire/70">
+              Coordonnées de livraison
             </p>
-            <label className="block">
-              <span className="mb-1 block text-xs font-medium text-air-950/70">
-                Full name
-              </span>
-              <input
+            <div className="space-y-1.5">
+              <Label htmlFor="ship-name">Nom complet</Label>
+              <Input
+                id="ship-name"
                 required
                 value={shipping.fullName}
                 onChange={(e) =>
                   setShipping({ ...shipping, fullName: e.target.value })
                 }
-                className="w-full rounded-lg border border-air-950/15 bg-white px-3 py-2 text-sm outline-none focus:border-gold-500"
               />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-xs font-medium text-air-950/70">
-                Email
-              </span>
-              <input
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ship-email">E-mail</Label>
+              <Input
+                id="ship-email"
                 required
                 type="email"
                 value={shipping.email}
                 onChange={(e) =>
                   setShipping({ ...shipping, email: e.target.value })
                 }
-                className="w-full rounded-lg border border-air-950/15 bg-white px-3 py-2 text-sm outline-none focus:border-gold-500"
               />
-            </label>
-            <label className="block">
-              <span className="mb-1 block text-xs font-medium text-air-950/70">
-                Address
-              </span>
-              <input
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ship-address">Adresse</Label>
+              <Input
+                id="ship-address"
                 required
                 value={shipping.address}
                 onChange={(e) =>
                   setShipping({ ...shipping, address: e.target.value })
                 }
-                className="w-full rounded-lg border border-air-950/15 bg-white px-3 py-2 text-sm outline-none focus:border-gold-500"
               />
-            </label>
+            </div>
             <div className="grid grid-cols-2 gap-4">
-              <label className="block">
-                <span className="mb-1 block text-xs font-medium text-air-950/70">
-                  City
-                </span>
-                <input
+              <div className="space-y-1.5">
+                <Label htmlFor="ship-city">Ville</Label>
+                <Input
+                  id="ship-city"
                   required
                   value={shipping.city}
                   onChange={(e) =>
                     setShipping({ ...shipping, city: e.target.value })
                   }
-                  className="w-full rounded-lg border border-air-950/15 bg-white px-3 py-2 text-sm outline-none focus:border-gold-500"
                 />
-              </label>
-              <label className="block">
-                <span className="mb-1 block text-xs font-medium text-air-950/70">
-                  Postal code
-                </span>
-                <input
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ship-postal">Code postal</Label>
+                <Input
+                  id="ship-postal"
                   required
                   value={shipping.postalCode}
                   onChange={(e) =>
                     setShipping({ ...shipping, postalCode: e.target.value })
                   }
-                  className="w-full rounded-lg border border-air-950/15 bg-white px-3 py-2 text-sm outline-none focus:border-gold-500"
                 />
-              </label>
+              </div>
             </div>
-            <label className="block">
-              <span className="mb-1 block text-xs font-medium text-air-950/70">
-                Country
-              </span>
-              <input
+            <div className="space-y-1.5">
+              <Label htmlFor="ship-country">Pays</Label>
+              <Input
+                id="ship-country"
                 required
                 value={shipping.country}
                 onChange={(e) =>
                   setShipping({ ...shipping, country: e.target.value })
                 }
-                className="w-full rounded-lg border border-air-950/15 bg-white px-3 py-2 text-sm outline-none focus:border-gold-500"
               />
-            </label>
+            </div>
           </div>
 
           <CreditCardForm value={card} onChange={setCard} />
         </div>
 
-        <div className="h-fit space-y-4 rounded-2xl border border-air-950/10 bg-air-100 p-6">
-          <p className="text-sm font-medium uppercase tracking-wide text-air-950/70">
-            Order summary
+        <div className="h-fit space-y-4 rounded border border-ardoise bg-brume-profond p-6">
+          <p className="text-sm font-medium uppercase tracking-wide text-ivoire/70">
+            Récapitulatif
           </p>
           <ul className="space-y-2 text-sm">
             {lines.map((line) => (
@@ -197,31 +188,33 @@ export default function CheckoutPage() {
                 key={`${line.productId}-${line.sizeId}`}
                 className="flex justify-between"
               >
-                <span className="text-air-950/70">
+                <span className="text-ivoire/70">
                   {line.name} ({line.sizeLabel}) &times; {line.quantity}
                 </span>
-                <span className="text-air-950">
-                  &euro;{line.priceEUR * line.quantity}
+                <span className="text-ivoire">
+                  {line.priceEUR * line.quantity}&nbsp;&euro;
                 </span>
               </li>
             ))}
           </ul>
-          <div className="flex justify-between border-t border-air-950/15 pt-3 font-medium text-air-950">
+          <div className="flex justify-between border-t border-ardoise pt-3 font-medium text-ivoire">
             <span>Total</span>
-            <span>&euro;{total}</span>
+            <span>{total}&nbsp;&euro;</span>
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <button
+          <Button
             type="submit"
+            size="lg"
             disabled={isLoading}
-            className="w-full rounded-full bg-air-950 py-4 text-sm font-medium uppercase tracking-wide text-air-50 transition-colors hover:bg-air-900 disabled:opacity-50"
+            className="w-full rounded-full"
           >
-            {isLoading ? "Processing..." : `Pay €${total}`}
-          </button>
-          <p className="text-center text-xs text-air-950/40">
-            Demo checkout &mdash; no real payment is processed.
+            {isLoading ? "Traitement en cours..." : `Payer ${total} €`}
+          </Button>
+          <p className="text-center text-xs text-ivoire/40">
+            Paiement de démonstration &mdash; aucune transaction réelle
+            n&rsquo;est effectuée.
           </p>
         </div>
       </form>

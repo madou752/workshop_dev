@@ -8,22 +8,28 @@ interface ReceiptLine {
   lineTotal: number;
 }
 
-// Caveman does not escape by default; the "escape" macro is used explicitly
-// below for the one field that comes from user input (customer name).
+// This HTML is generated server-side and injected client-side via
+// dangerouslySetInnerHTML, so it never passes through Vite/Tailwind's
+// scanner -- inline styles are used instead of Tailwind classes, which
+// would otherwise be purged from the client bundle.
+//
+// Caveman does not escape by default; the "escape" macro is used
+// explicitly below for the one field that comes from user input
+// (customer name).
 const receiptTemplate = `
-<div class="space-y-3">
-  <p class="text-sm text-air-950/60">Shipping to {{- escape d.customerName}}</p>
-  <ul class="divide-y divide-air-950/10">
+<div style="font-family:'Jost',sans-serif;color:#EDE8DF;">
+  <p style="margin:0 0 12px;font-size:13px;color:#8E9AA6;">Livraison &#224; {{- escape d.customerName}}</p>
+  <ul style="list-style:none;margin:0;padding:0;border-top:1px solid #1F2933;">
   {{- for d.lines as line}}
-    <li class="flex justify-between py-2 text-sm">
+    <li style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;border-bottom:1px solid #1F2933;">
       <span>{{line.quantity}}&times; {{line.name}} ({{line.sizeLabel}})</span>
-      <span>&euro;{{line.lineTotal}}</span>
+      <span>{{line.lineTotal}}&nbsp;&euro;</span>
     </li>
   {{- end}}
   </ul>
-  <p class="flex justify-between border-t border-air-950/15 pt-3 font-medium">
+  <p style="display:flex;justify-content:space-between;margin:14px 0 0;padding-top:14px;border-top:1px solid #C9A961;font-weight:500;">
     <span>Total</span>
-    <span>&euro;{{d.total}}</span>
+    <span>{{d.total}}&nbsp;&euro;</span>
   </p>
 </div>
 `;
@@ -33,7 +39,7 @@ export function renderReceipt(order: Order, products: Product[]): string {
     const product = products.find((p) => p.id === item.productId);
     const size = product?.sizes.find((s) => s.id === item.sizeId);
     return {
-      name: product?.name ?? "Unknown Air",
+      name: product?.name ?? "Air inconnu",
       sizeLabel: size?.label ?? "",
       quantity: item.quantity,
       lineTotal: (size?.priceEUR ?? 0) * item.quantity,

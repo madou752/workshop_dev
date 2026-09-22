@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export interface CardDetails {
   cardholderName: string;
@@ -27,15 +28,13 @@ export default function CreditCardForm({
   value,
   onChange,
 }: CreditCardFormProps) {
-  const [focused, setFocused] = useState<string | null>(null);
-
   return (
-    <div className="space-y-4 rounded-2xl border border-air-950/10 bg-air-50 p-6">
+    <div className="space-y-4 rounded border border-ardoise bg-brume-profond p-6">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium uppercase tracking-wide text-air-950/70">
-          Payment details
+        <p className="text-sm font-medium uppercase tracking-wide text-ivoire/70">
+          Coordonnées de paiement
         </p>
-        <div className="flex items-center gap-1 text-air-950/40">
+        <div className="flex items-center gap-1 text-gris">
           <svg
             width="16"
             height="16"
@@ -48,43 +47,34 @@ export default function CreditCardForm({
             <rect x="3" y="11" width="18" height="10" rx="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
-          <span className="text-xs">Secure checkout</span>
+          <span className="text-xs">Paiement sécurisé</span>
         </div>
       </div>
 
-      <label className="block">
-        <span className="mb-1 block text-xs font-medium text-air-950/70">
-          Cardholder name
-        </span>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="cc-name">Titulaire de la carte</Label>
+        <Input
+          id="cc-name"
           type="text"
           required
           autoComplete="cc-name"
           value={value.cardholderName}
-          onFocus={() => setFocused("name")}
-          onBlur={() => setFocused(null)}
           onChange={(e) =>
             onChange({ ...value, cardholderName: e.target.value })
           }
-          placeholder="As printed on card"
-          className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition-colors ${
-            focused === "name" ? "border-gold-500" : "border-air-950/15"
-          }`}
+          placeholder="Comme indiqué sur la carte"
         />
-      </label>
+      </div>
 
-      <label className="block">
-        <span className="mb-1 block text-xs font-medium text-air-950/70">
-          Card number
-        </span>
-        <input
+      <div className="space-y-1.5">
+        <Label htmlFor="cc-number">Numéro de carte</Label>
+        <Input
+          id="cc-number"
           type="text"
           inputMode="numeric"
           required
           autoComplete="cc-number"
           value={value.cardNumber}
-          onFocus={() => setFocused("number")}
-          onBlur={() => setFocused(null)}
           onChange={(e) =>
             onChange({
               ...value,
@@ -92,46 +82,34 @@ export default function CreditCardForm({
             })
           }
           placeholder="1234 5678 9012 3456"
-          className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition-colors ${
-            focused === "number" ? "border-gold-500" : "border-air-950/15"
-          }`}
         />
-      </label>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-air-950/70">
-            Expiry
-          </span>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="cc-expiry">Expiration</Label>
+          <Input
+            id="cc-expiry"
             type="text"
             inputMode="numeric"
             required
             autoComplete="cc-exp"
             value={value.expiry}
-            onFocus={() => setFocused("expiry")}
-            onBlur={() => setFocused(null)}
             onChange={(e) =>
               onChange({ ...value, expiry: formatExpiry(e.target.value) })
             }
-            placeholder="MM/YY"
-            className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition-colors ${
-              focused === "expiry" ? "border-gold-500" : "border-air-950/15"
-            }`}
+            placeholder="MM/AA"
           />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium text-air-950/70">
-            CVC
-          </span>
-          <input
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="cc-cvc">CVC</Label>
+          <Input
+            id="cc-cvc"
             type="text"
             inputMode="numeric"
             required
             autoComplete="cc-csc"
             value={value.cvc}
-            onFocus={() => setFocused("cvc")}
-            onBlur={() => setFocused(null)}
             onChange={(e) =>
               onChange({
                 ...value,
@@ -139,11 +117,8 @@ export default function CreditCardForm({
               })
             }
             placeholder="123"
-            className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition-colors ${
-              focused === "cvc" ? "border-gold-500" : "border-air-950/15"
-            }`}
           />
-        </label>
+        </div>
       </div>
     </div>
   );

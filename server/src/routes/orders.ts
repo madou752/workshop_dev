@@ -29,15 +29,15 @@ ordersRouter.post("/", async (req, res) => {
   const payment = body.payment ?? {};
 
   if (items.length === 0) {
-    res.status(400).json({ error: "Cart is empty." });
+    res.status(400).json({ error: "Le panier est vide." });
     return;
   }
   if (!isNonEmptyString(customer.fullName) || !isNonEmptyString(customer.email)) {
-    res.status(400).json({ error: "Missing shipping details." });
+    res.status(400).json({ error: "Coordonnées de livraison manquantes." });
     return;
   }
   if (!isNonEmptyString(payment.cardholderName)) {
-    res.status(400).json({ error: "Missing payment details." });
+    res.status(400).json({ error: "Coordonnées de paiement manquantes." });
     return;
   }
 
@@ -49,7 +49,7 @@ ordersRouter.post("/", async (req, res) => {
     const product = db.data.products.find((p) => p.id === item.productId);
     const size = product?.sizes.find((s) => s.id === item.sizeId);
     if (!product || !size) {
-      res.status(400).json({ error: "Unknown product in cart." });
+      res.status(400).json({ error: "Produit inconnu dans le panier." });
       return;
     }
     const quantity = Math.max(1, Number(item.quantity) || 1);
@@ -62,7 +62,7 @@ ordersRouter.post("/", async (req, res) => {
   }
 
   const order: Order = {
-    orderId: `AER-${nanoid()}`,
+    orderId: `LHA-${nanoid()}`,
     createdAt: new Date().toISOString(),
     items: validatedItems,
     customer: {
@@ -90,7 +90,7 @@ ordersRouter.post("/", async (req, res) => {
 ordersRouter.get("/:orderId", (req, res) => {
   const order = db.data.orders.find((o) => o.orderId === req.params.orderId);
   if (!order) {
-    res.status(404).json({ error: "Order not found" });
+    res.status(404).json({ error: "Commande introuvable" });
     return;
   }
   res.json(toOrderConfirmation(order));

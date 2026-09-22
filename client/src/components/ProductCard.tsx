@@ -1,47 +1,50 @@
 import { Link } from "react-router-dom";
-import type { Product } from "../types/product";
+import type { Product } from "@/types/product";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import AirBottle from "@/components/AirBottle";
 
 const categoryLabel: Record<Product["category"], string> = {
-  desert: "Desert Air",
-  city: "City Air",
-  landmark: "Landmark Air",
-  celebrity: "Celebrity Collab",
+  desert: "Air du Désert",
+  city: "Air Urbain",
+  landmark: "Air de Monument",
+  celebrity: "Collab Célébrité",
 };
 
 export default function ProductCard({ product }: { product: Product }) {
   const startingPrice = Math.min(...product.sizes.map((s) => s.priceEUR));
 
   return (
-    <Link
-      to={`/product/${product.slug}`}
-      className="group block overflow-hidden rounded-2xl border border-air-950/10 bg-air-50 transition-shadow hover:shadow-xl"
-    >
-      <div className="relative aspect-[4/5] overflow-hidden bg-air-100">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-        {product.limitedEdition && (
-          <span className="absolute left-3 top-3 rounded-full bg-gold-500 px-3 py-1 text-xs font-medium uppercase tracking-wide text-air-50">
-            Limited Edition
-          </span>
-        )}
-      </div>
-      <div className="p-5">
-        <p className="text-xs uppercase tracking-wide text-gold-500">
-          {categoryLabel[product.category]}
-        </p>
-        <h3 className="mt-1 font-serif text-lg text-air-950">
-          {product.name}
-        </h3>
-        <p className="mt-1 line-clamp-2 text-sm text-air-950/60">
-          {product.tagline}
-        </p>
-        <p className="mt-3 text-sm font-medium text-air-950">
-          From &euro;{startingPrice}
-        </p>
-      </div>
+    <Link to={`/produit/${product.slug}`} className="group block">
+      <Card className="overflow-hidden border-ardoise bg-brume-profond py-0 transition-shadow hover:shadow-xl hover:shadow-black/30">
+        <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-nuit">
+          <AirBottle
+            size="card"
+            tagline={product.tagline}
+            volumeMl={product.sizes[0].volumeMl}
+            className="scale-90 transition-transform duration-500 group-hover:scale-100"
+          />
+          {product.limitedEdition && (
+            <Badge className="absolute left-3 top-3 uppercase tracking-wide">
+              Édition Limitée
+            </Badge>
+          )}
+        </div>
+        <CardContent className="p-5">
+          <p className="text-xs uppercase tracking-wide text-or">
+            {categoryLabel[product.category]}
+          </p>
+          <h3 className="mt-1 font-serif text-lg text-ivoire">
+            {product.name}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-gris">
+            {product.tagline}
+          </p>
+          <p className="mt-3 text-sm font-medium text-ivoire">
+            &Agrave; partir de {startingPrice}&nbsp;&euro;
+          </p>
+        </CardContent>
+      </Card>
     </Link>
   );
 }

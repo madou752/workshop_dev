@@ -15,10 +15,12 @@ export interface Product {
   tagline: string;
   description: string;
   origin: string;
+  altitude: string;
+  composition: string;
+  lotNumber: string;
   notes: string[];
   limitedEdition?: boolean;
   sizes: ProductSize[];
-  image: string;
 }
 
 export interface OrderItem {
