@@ -150,6 +150,49 @@ production, on limiterait la liste aux IP des serveurs.
 | `npm run seed --prefix server` | (re)remplit `products` depuis `data/products.seed.ts` |
 | `npm run dev` | lance le client et le serveur |
 
+## Dépannage
+
+### Le serveur affiche « Impossible de se connecter a MongoDB »
+
+C'est un message volontaire : quand la base est injoignable, le serveur
+explique et s'arrête proprement au lieu d'afficher une trace d'erreur. Les
+causes habituelles sont listées dans le message lui-même.
+
+Une fois la connexion établie, le driver MongoDB gère tout seul les coupures
+réseau et se reconnecte. Le seul moment fragile est le démarrage.
+
+### Erreur `querySrv ECONNREFUSED` (problème de DNS)
+
+Elle apparaît quand le système annonce un serveur DNS que Node ne sait pas
+utiliser (typiquement une adresse IPv6 link-local du type `fe80::...%en0`
+fournie par une box).
+
+Node a **deux** mécanismes de résolution :
+
+| Mécanisme | Utilisé pour | Source |
+|---|---|---|
+| `dns.lookup()` | les noms d'hôtes ordinaires | resolveur du système |
+| `dns.resolveSrv()` | les URI `mongodb+srv://` | `/etc/resolv.conf` |
+
+Seul le second casse. D'où deux solutions :
+
+**Solution 1 — utiliser une URI sans `+srv`** (c'est notre configuration
+actuelle). Au lieu de demander au DNS la liste des serveurs, on l'écrit
+directement :
+
+```
+mongodb://<user>:<password>@hote-00:27017,hote-01:27017,hote-02:27017/?ssl=true&replicaSet=...&authSource=admin
+```
+
+Atlas fournit cette forme dans **Connect → Drivers**, en choisissant une
+version de driver antérieure à 3.6. Contrepartie : si Atlas renomme un jour
+les serveurs du cluster, il faut mettre l'URI à jour — alors que `+srv` s'en
+occuperait tout seul.
+
+**Solution 2 — corriger le DNS de la machine**, en ajoutant un serveur IPv4
+(`1.1.1.1`, `8.8.8.8`) dans Réglages Système → Wi-Fi → Détails → DNS. Cela
+règle le problème pour tous les outils, pas seulement pour ce projet.
+
 ## Questions qu'on peut me poser
 
 **Pourquoi une seule connexion ?** Ouvrir une connexion par requête serait

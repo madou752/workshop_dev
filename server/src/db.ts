@@ -10,8 +10,22 @@ if (!uri) {
   );
 }
 
-const client = new MongoClient(uri);
-await client.connect();
+const client = new MongoClient(uri, { serverSelectionTimeoutMS: 10_000 });
+
+// A dead database should produce an explanation, not a stack trace.
+try {
+  await client.connect();
+} catch (error) {
+  const reason = error instanceof Error ? error.message : String(error);
+  console.error("\n  Impossible de se connecter a MongoDB.");
+  console.error(`  ${reason}\n`);
+  console.error("  Pistes :");
+  console.error("  - MONGODB_URI est-il correct dans server/.env ?");
+  console.error("  - votre IP est-elle autorisee dans Atlas > Network Access ?");
+  console.error("  - erreur 'querySrv' ou 'ECONNREFUSED' : probleme de DNS,");
+  console.error("    voir la section Depannage de server/DATABASE.md\n");
+  process.exit(1);
+}
 
 const database = client.db(process.env.MONGODB_DB ?? "lahistair");
 
