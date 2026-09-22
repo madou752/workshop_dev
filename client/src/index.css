@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
+  --color-air-950: #0b0d10;
+  --color-air-900: #12151a;
+  --color-air-100: #f3f1ea;
+  --color-air-50: #fbfaf6;
+  --color-gold-400: #c9a253;
+  --color-gold-500: #b3893a;
+}
+
+body {
+  background-color: var(--color-air-50);
+  color: var(--color-air-950);
+  font-family: var(--font-sans);
+}

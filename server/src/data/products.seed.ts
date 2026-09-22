@@ -1,0 +1,173 @@
+import type { Product } from "../types.js";
+
+function sizes(base: number) {
+  return [
+    { id: "sm", label: "Traveler", volumeMl: 50, priceEUR: base },
+    { id: "md", label: "Signature", volumeMl: 150, priceEUR: Math.round(base * 2.4) },
+    { id: "lg", label: "Cellar Jar", volumeMl: 500, priceEUR: Math.round(base * 7) },
+  ];
+}
+
+export const products: Product[] = [
+  {
+    id: "sahara",
+    slug: "sahara-desert-air",
+    name: "Sahara Dawn",
+    category: "desert",
+    tagline: "Dry heat, captured at first light.",
+    description:
+      "Harvested at sunrise over the dunes near Merzouga, before the wind picks up. Notes of warm sand and total silence.",
+    origin: "Merzouga, Morocco",
+    notes: ["Dry", "Mineral", "Silent"],
+    sizes: sizes(50),
+    image: "https://picsum.photos/seed/sahara-air/600/750",
+  },
+  {
+    id: "gobi",
+    slug: "gobi-desert-air",
+    name: "Gobi Stillness",
+    category: "desert",
+    tagline: "Thin, cold, and utterly indifferent to you.",
+    description:
+      "Collected at dusk in the Gobi's Khongoryn Els dunes. A crisp, high-desert air with almost no humidity.",
+    origin: "Khongoryn Els, Mongolia",
+    notes: ["Crisp", "Cold", "Vast"],
+    sizes: sizes(55),
+    image: "https://picsum.photos/seed/gobi-air/600/750",
+  },
+  {
+    id: "atacama",
+    slug: "atacama-desert-air",
+    name: "Atacama Clarity",
+    category: "desert",
+    tagline: "The driest air on Earth, bottled anyway.",
+    description:
+      "Sourced from the world's driest non-polar desert. Astronomers love the sky here; we loved the air.",
+    origin: "Atacama, Chile",
+    notes: ["Rare", "Thin", "Star-adjacent"],
+    limitedEdition: true,
+    sizes: sizes(65),
+    image: "https://picsum.photos/seed/atacama-air/600/750",
+  },
+  {
+    id: "paris",
+    slug: "paris-city-air",
+    name: "Paris, 7am",
+    category: "city",
+    tagline: "Notes of espresso, ambition, and fresh bread.",
+    description:
+      "Captured on a quiet Left Bank street before the tourists wake up. As close as air can get to a croissant.",
+    origin: "Paris, France",
+    notes: ["Espresso", "Bakery", "Ambition"],
+    sizes: sizes(60),
+    image: "https://picsum.photos/seed/paris-air/600/750",
+  },
+  {
+    id: "tokyo",
+    slug: "tokyo-city-air",
+    name: "Shibuya Midnight",
+    category: "city",
+    tagline: "Neon-adjacent. Faintly electric.",
+    description:
+      "Bottled above the Shibuya Scramble at midnight. Contains trace notes of vending machine and possibility.",
+    origin: "Tokyo, Japan",
+    notes: ["Electric", "Neon", "Kinetic"],
+    sizes: sizes(65),
+    image: "https://picsum.photos/seed/tokyo-air/600/750",
+  },
+  {
+    id: "newyork",
+    slug: "new-york-city-air",
+    name: "Fifth Avenue Rush",
+    category: "city",
+    tagline: "Hot pretzel, cold ambition.",
+    description:
+      "Captured mid-morning on Fifth Avenue. Not for the faint of heart or the lungs.",
+    origin: "New York, USA",
+    notes: ["Bold", "Fast", "Unapologetic"],
+    sizes: sizes(70),
+    image: "https://picsum.photos/seed/newyork-air/600/750",
+  },
+  {
+    id: "everest",
+    slug: "everest-summit-air",
+    name: "Everest Summit",
+    category: "landmark",
+    tagline: "8,849 meters. Handle with reverence.",
+    description:
+      "The rarest air we offer, collected by our harvesting partners at the summit of Mount Everest. Extremely thin, extremely bragged-about.",
+    origin: "Mount Everest, Nepal",
+    notes: ["Thin", "Sacred", "Bragging rights"],
+    limitedEdition: true,
+    sizes: sizes(80),
+    image: "https://picsum.photos/seed/everest-air/600/750",
+  },
+  {
+    id: "niagara",
+    slug: "niagara-falls-air",
+    name: "Niagara Mist",
+    category: "landmark",
+    tagline: "Perpetually slightly damp. Perfect.",
+    description:
+      "Collected from the mist zone at the base of Horseshoe Falls. Comes with a faint, permanent rainbow (not guaranteed).",
+    origin: "Niagara Falls, Canada",
+    notes: ["Misty", "Fresh", "Thunderous"],
+    sizes: sizes(70),
+    image: "https://picsum.photos/seed/niagara-air/600/750",
+  },
+  {
+    id: "eiffel",
+    slug: "eiffel-tower-air",
+    name: "Eiffel Summit Air",
+    category: "landmark",
+    tagline: "Romance, at 300 meters.",
+    description:
+      "Harvested from the top platform of the Eiffel Tower at golden hour. Best gifted, rarely explained.",
+    origin: "Paris, France",
+    notes: ["Romantic", "Elevated", "Golden hour"],
+    sizes: sizes(75),
+    image: "https://picsum.photos/seed/eiffel-air/600/750",
+  },
+  {
+    id: "gosling",
+    slug: "ryan-gosling-air",
+    name: "La La Air — Ryan Gosling Edition",
+    category: "celebrity",
+    tagline: "The air he breathed between takes. Probably.",
+    description:
+      "A limited collaboration inspired by Ryan Gosling, captured on a Los Angeles soundstage during golden hour. Parody collectible — not produced with or endorsed by Ryan Gosling.",
+    origin: "Los Angeles, USA",
+    notes: ["Cinematic", "Golden hour", "Suspiciously charming"],
+    limitedEdition: true,
+    sizes: sizes(150),
+    image: "https://picsum.photos/seed/gosling-air/600/750",
+  },
+  {
+    id: "trump",
+    slug: "trump-air",
+    name: "45/47 Air — Presidential Edition",
+    category: "celebrity",
+    tagline: "Tremendous air. The best air. People are saying it.",
+    description:
+      "A satirical limited edition inspired by Donald Trump, sourced from the air above a Mar-a-Lago balcony. Parody collectible — not produced with or endorsed by Donald Trump.",
+    origin: "Palm Beach, USA",
+    notes: ["Bold", "Unmistakable", "Divisive"],
+    limitedEdition: true,
+    sizes: sizes(150),
+    image: "https://picsum.photos/seed/trump-air/600/750",
+  },
+  {
+    id: "rock",
+    slug: "dwayne-johnson-air",
+    name: "Sunrise Grind — Dwayne Johnson Edition",
+    category: "celebrity",
+    tagline: "4am gym air. It just hits different.",
+    description:
+      "Inspired by Dwayne 'The Rock' Johnson's famously early gym sessions. Parody collectible — not produced with or endorsed by Dwayne Johnson.",
+    origin: "Los Angeles, USA",
+    notes: ["Motivational", "Pre-dawn", "Slightly sweaty"],
+    limitedEdition: true,
+    sizes: sizes(150),
+    image: "https://picsum.photos/seed/rock-air/600/750",
+  },
+];
