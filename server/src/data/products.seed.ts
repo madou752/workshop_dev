@@ -2,9 +2,9 @@ import type { Product } from "../types.js";
 
 function sizes(base: number) {
   return [
-    { id: "sm", label: "Format Voyage", volumeMl: 50, priceEUR: base },
-    { id: "md", label: "Signature", volumeMl: 150, priceEUR: Math.round(base * 2.4) },
-    { id: "lg", label: "Cave", volumeMl: 500, priceEUR: Math.round(base * 7) },
+    { id: "sm", label: "Format Voyage", volumeMl: 30, priceEUR: base },
+    { id: "md", label: "Signature", volumeMl: 100, priceEUR: Math.round(base * 2.4) },
+    { id: "lg", label: "Cave", volumeMl: 250, priceEUR: Math.round(base * 5) },
   ];
 }
 

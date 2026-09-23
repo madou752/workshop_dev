@@ -2,12 +2,11 @@ import { useSearchParams } from "react-router-dom";
 import { useGetProductsQuery } from "@/api/apiSlice";
 import ProductCard from "@/components/ProductCard";
 import type { ProductCategory } from "@/types/product";
+import { categoryLabel, collectionSlugs } from "@/lib/categories";
 
 const filters: { value: ProductCategory | "all"; label: string }[] = [
   { value: "all", label: "Tout" },
-  { value: "desert", label: "Air du Désert" },
-  { value: "city", label: "Air Urbain" },
-  { value: "nature", label: "Air Sauvage" },
+  ...collectionSlugs.map((c) => ({ value: c, label: categoryLabel[c] })),
 ];
 
 export default function ShopPage() {

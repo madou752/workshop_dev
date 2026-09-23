@@ -3,10 +3,13 @@ import type { CartLine } from "../../types/product";
 
 interface CartState {
   lines: CartLine[];
+  /** Whether the slide-in cart panel is showing. */
+  drawerOpen: boolean;
 }
 
 const initialState: CartState = {
   lines: [],
+  drawerOpen: false,
 };
 
 const cartSlice = createSlice({
@@ -57,9 +60,21 @@ const cartSlice = createSlice({
     clearCart(state) {
       state.lines = [];
     },
+    openCart(state) {
+      state.drawerOpen = true;
+    },
+    closeCart(state) {
+      state.drawerOpen = false;
+    },
   },
 });
 
-export const { addLine, removeLine, setQuantity, clearCart } =
-  cartSlice.actions;
+export const {
+  addLine,
+  removeLine,
+  setQuantity,
+  clearCart,
+  openCart,
+  closeCart,
+} = cartSlice.actions;
 export default cartSlice.reducer;

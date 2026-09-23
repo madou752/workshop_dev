@@ -2,42 +2,8 @@ import { Link } from "react-router-dom";
 import { useGetProductsQuery } from "@/api/apiSlice";
 import ProductCard from "@/components/ProductCard";
 import VideoHero from "@/components/VideoHero";
-
-const craftSteps = [
-  {
-    numeral: "I",
-    title: "La captation",
-    text: "L'air est recueilli à l'aube, au-dessus de la ligne des nuages, avant que le jour ne le réchauffe.",
-  },
-  {
-    numeral: "II",
-    title: "Le scellage",
-    text: "Le flacon est fermé sur place. Sa bague en laiton guilloché garantit une étanchéité parfaite.",
-  },
-  {
-    numeral: "III",
-    title: "La numérotation",
-    text: "Chaque lot reçoit un numéro unique, consigné au registre de la Maison.",
-  },
-];
-
-const categories = [
-  {
-    slug: "desert",
-    label: "Air du Désert",
-    blurb: "Sec, ancien, imperturbable.",
-  },
-  {
-    slug: "city",
-    label: "Air Urbain",
-    blurb: "Notes d'espresso et d'ambition.",
-  },
-  {
-    slug: "nature",
-    label: "Air Sauvage",
-    blurb: "Forêts, cascades et sommets.",
-  },
-];
+import { craftSteps } from "@/lib/maison";
+import { collections, collectionSlugs } from "@/lib/categories";
 
 export default function HomePage() {
   const { data: products } = useGetProductsQuery();
@@ -49,16 +15,28 @@ export default function HomePage() {
 
       <section className="border-b border-ardoise bg-nuit-profond">
         <div className="mx-auto grid max-w-6xl gap-14 px-6 py-24 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-          <div
-            role="img"
-            aria-label="Détail de l'étiquette Lahist'air"
-            className="mx-auto aspect-[4/5] w-full max-w-md rounded-sm border border-ivoire/10 bg-no-repeat lg:max-w-none"
-            style={{
-              backgroundImage: "url(/hero-altitude.jpg)",
-              backgroundSize: "260%",
-              backgroundPosition: "50% 62%",
-            }}
-          />
+          <div className="relative flex justify-center py-6">
+            {/* Soft gold halo behind the cut-out bottle. */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse 45% 50% at 50% 45%, rgba(201,169,97,0.16), transparent 70%)",
+              }}
+            />
+            <picture className="relative">
+              <source srcSet="/flacon-lahistair-detoure.webp" type="image/webp" />
+              <img
+                src="/flacon-lahistair-detoure.png"
+                alt="Flacon Lahist'air, Air de haute altitude"
+                loading="lazy"
+                width={406}
+                height={1400}
+                className="animate-float-bottle h-[420px] w-auto drop-shadow-[0_30px_40px_rgba(0,0,0,0.6)] sm:h-[520px]"
+              />
+            </picture>
+          </div>
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-or">
               Savoir-faire
@@ -92,18 +70,39 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <h2 className="font-serif text-2xl text-ivoire">Collections</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {categories.map((c, i) => (
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+          Les collections
+        </p>
+        <h2 className="mt-3 font-serif text-4xl font-light text-ivoire">
+          Trois territoires
+        </h2>
+        <div className="mt-10 grid gap-6 sm:grid-cols-3">
+          {collectionSlugs.map((c, i) => (
             <Link
-              key={c.slug}
-              to={`/boutique?category=${c.slug}`}
-              style={{ animationDelay: `${i * 75}ms` }}
-              className="animate-in fade-in slide-in-from-bottom-2 fill-mode-both rounded border border-ardoise p-5 transition-all duration-500 hover:-translate-y-1 hover:border-or"
+              key={c}
+              to={`/collection/${c}`}
+              style={{ animationDelay: `${i * 90}ms` }}
+              className="group relative flex aspect-[3/4] animate-in fade-in slide-in-from-bottom-2 fill-mode-both items-end overflow-hidden rounded-sm border border-ardoise duration-500"
             >
-              <p className="font-serif text-lg text-ivoire">{c.label}</p>
-              <p className="mt-1 text-sm text-gris">{c.blurb}</p>
+              <img
+                src={encodeURI(collections[c].image)}
+                alt=""
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-nuit via-nuit/40 to-transparent" />
+              <div className="relative p-6">
+                <p className="font-serif text-2xl text-ivoire">
+                  {collections[c].label}
+                </p>
+                <p className="mt-1 text-sm text-ivoire/70">
+                  {collections[c].blurb}
+                </p>
+                <p className="mt-4 text-[11px] uppercase tracking-[0.25em] text-or opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  Découvrir &rarr;
+                </p>
+              </div>
             </Link>
           ))}
         </div>

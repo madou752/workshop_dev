@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { useAppSelector } from "@/app/hooks";
+import { Dialog } from "radix-ui";
+import { Menu, ShoppingBag, X } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { openCart } from "@/features/cart/cartSlice";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/brand/Logo";
+import { categoryLabel } from "@/lib/categories";
+import type { ProductCategory } from "@/types/product";
 
 const navLink =
   "text-sm tracking-wide uppercase text-ivoire/60 hover:text-ivoire transition-colors";
@@ -24,7 +29,73 @@ function useScrolledPast(threshold: number) {
   return scrolled;
 }
 
+function MobileMenu() {
+  const [open, setOpen] = useState(false);
+
+  const links = [
+    { to: "/boutique", label: "La Collection" },
+    ...(Object.keys(categoryLabel) as ProductCategory[]).map((c) => ({
+      to: `/collection/${c}`,
+      label: categoryLabel[c],
+      sub: true,
+    })),
+    { to: "/maison", label: "Notre Maison" },
+  ];
+
+  return (
+    <Dialog.Root open={open} onOpenChange={setOpen}>
+      <Dialog.Trigger asChild>
+        <button
+          type="button"
+          aria-label="Ouvrir le menu"
+          className="p-2 text-ivoire/80 transition-colors hover:text-or md:hidden"
+        >
+          <Menu className="size-6" strokeWidth={1.25} />
+        </button>
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Content className="fixed inset-0 z-50 flex flex-col bg-nuit-profond px-6 pb-10 pt-5 text-ivoire data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out">
+          <Dialog.Title className="sr-only">Menu</Dialog.Title>
+          <Dialog.Description className="sr-only">
+            Navigation principale
+          </Dialog.Description>
+          <div className="flex items-center justify-between">
+            <Logo tone="ivoire" className="h-9 w-auto" />
+            <Dialog.Close
+              aria-label="Fermer le menu"
+              className="p-2 text-ivoire/80 transition-colors hover:text-or"
+            >
+              <X className="size-6" strokeWidth={1.25} />
+            </Dialog.Close>
+          </div>
+          <nav className="mt-16 flex flex-col gap-6">
+            {links.map((l, i) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                onClick={() => setOpen(false)}
+                style={{ animationDelay: `${i * 60}ms` }}
+                className={`animate-in fade-in slide-in-from-bottom-2 fill-mode-both duration-500 transition-colors hover:text-or ${
+                  "sub" in l
+                    ? "pl-5 text-sm uppercase tracking-[0.25em] text-ivoire/60"
+                    : "font-serif text-4xl font-light"
+                }`}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <p className="mt-auto text-[11px] uppercase tracking-[0.35em] text-ivoire/40">
+            Maison d&rsquo;Air &middot; Paris
+          </p>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+}
+
 export default function Navbar() {
+  const dispatch = useAppDispatch();
   const itemCount = useAppSelector((state) =>
     state.cart.lines.reduce((sum, line) => sum + line.quantity, 0),
   );
@@ -57,11 +128,11 @@ export default function Navbar() {
               }`}
             />
           </Link>
-          <nav className="flex items-center gap-8">
+          <nav className="flex items-center gap-2 md:gap-8">
             <NavLink
               to="/boutique"
               className={({ isActive }) =>
-                `${navLink} ${isActive ? navLinkActive : ""}`
+                `hidden md:inline ${navLink} ${isActive ? navLinkActive : ""}`
               }
             >
               Boutique
@@ -69,27 +140,28 @@ export default function Navbar() {
             <NavLink
               to="/maison"
               className={({ isActive }) =>
-                `${navLink} ${isActive ? navLinkActive : ""}`
+                `hidden md:inline ${navLink} ${isActive ? navLinkActive : ""}`
               }
             >
               Notre Maison
             </NavLink>
             <Button
-              asChild
               variant="outline"
               size="sm"
+              onClick={() => dispatch(openCart())}
+              aria-label={`Ouvrir le panier (${itemCount} article${itemCount > 1 ? "s" : ""})`}
               className="gap-2 rounded-full bg-transparent transition-colors hover:border-or hover:text-or"
             >
-              <Link to="/panier">
-                Panier
-                <span
-                  key={itemCount}
-                  className="animate-in zoom-in-50 duration-300 inline-flex h-5 w-5 items-center justify-center rounded-full bg-or text-xs font-medium text-nuit"
-                >
-                  {itemCount}
-                </span>
-              </Link>
+              <ShoppingBag className="size-4 md:hidden" strokeWidth={1.5} />
+              <span className="hidden md:inline">Panier</span>
+              <span
+                key={itemCount}
+                className="animate-in zoom-in-50 duration-300 inline-flex h-5 w-5 items-center justify-center rounded-full bg-or text-xs font-medium text-nuit"
+              >
+                {itemCount}
+              </span>
             </Button>
+            <MobileMenu />
           </nav>
         </div>
       </header>

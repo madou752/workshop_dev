@@ -1,8 +1,11 @@
+import { useEffect } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
 import HomePage from "@/pages/HomePage";
 import ShopPage from "@/pages/ShopPage";
+import CollectionPage from "@/pages/CollectionPage";
 import ProductPage from "@/pages/ProductPage";
 import CartPage from "@/pages/CartPage";
 import CheckoutPage from "@/pages/CheckoutPage";
@@ -11,6 +14,12 @@ import AboutPage from "@/pages/AboutPage";
 
 export default function App() {
   const location = useLocation();
+
+  // A new page starts at the top. Keyed on the path only, so changing a
+  // shop filter (?category=) doesn't jump the page.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <div className="flex min-h-screen flex-col bg-nuit text-ivoire">
@@ -22,6 +31,7 @@ export default function App() {
         <Routes location={location}>
           <Route path="/" element={<HomePage />} />
           <Route path="/boutique" element={<ShopPage />} />
+          <Route path="/collection/:slug" element={<CollectionPage />} />
           <Route path="/produit/:slug" element={<ProductPage />} />
           <Route path="/panier" element={<CartPage />} />
           <Route path="/commande" element={<CheckoutPage />} />
@@ -33,6 +43,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <CartDrawer />
     </div>
   );
 }

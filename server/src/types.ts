@@ -45,12 +45,29 @@ export interface OrderPayment {
   cardNumberLast4: string;
 }
 
+export type ShippingMethod = "signature" | "express";
+
+export interface OrderShipping {
+  method: ShippingMethod;
+  label: string;
+  priceEUR: number;
+}
+
+export interface OrderGift {
+  message: string;
+  /** Leave prices off the packing slip. */
+  hidePrices: boolean;
+}
+
 export interface Order {
   orderId: string;
   createdAt: string;
   items: OrderItem[];
   customer: OrderCustomer;
   payment: OrderPayment;
+  // Optional: orders placed before delivery options existed have neither.
+  shipping?: OrderShipping;
+  gift?: OrderGift;
   totalEUR: number;
   status: "confirmed";
 }

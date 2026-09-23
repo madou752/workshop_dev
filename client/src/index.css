@@ -148,6 +148,22 @@ body {
   animation: float-bottle 6s ease-in-out infinite;
 }
 
+/* Printing the order confirmation keeps only the certificates. */
+@media print {
+  header,
+  footer {
+    display: none !important;
+  }
+  body,
+  body > div {
+    background: #fff !important;
+  }
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-drift,
   .animate-float-bottle {

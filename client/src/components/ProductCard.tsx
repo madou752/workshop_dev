@@ -9,8 +9,8 @@ export default function ProductCard({ product }: { product: Product }) {
   const startingPrice = Math.min(...product.sizes.map((s) => s.priceEUR));
 
   return (
-    <Link to={`/produit/${product.slug}`} className="group block">
-      <Card className="overflow-hidden border-ardoise bg-brume-profond py-0 transition-all duration-300 hover:-translate-y-1 hover:border-or/40 hover:shadow-xl hover:shadow-black/30">
+    <Link to={`/produit/${product.slug}`} className="group block h-full">
+      <Card className="h-full overflow-hidden border-ardoise bg-brume-profond py-0 transition-all duration-300 hover:-translate-y-1 hover:border-or/40 hover:shadow-xl hover:shadow-black/30">
         <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-nuit">
           {product.image ? (
             <img
@@ -33,17 +33,18 @@ export default function ProductCard({ product }: { product: Product }) {
             </Badge>
           )}
         </div>
-        <CardContent className="p-5">
+        {/* Grows to fill the card so every price sits on the same line. */}
+        <CardContent className="flex flex-1 flex-col p-5">
           <p className="text-xs uppercase tracking-wide text-or">
             {categoryLabel[product.category]}
           </p>
           <h3 className="mt-1 font-serif text-lg text-ivoire">
             {product.name}
           </h3>
-          <p className="mt-1 line-clamp-2 text-sm text-gris">
+          <p className="mt-1 line-clamp-2 min-h-10 text-sm text-gris">
             {product.tagline}
           </p>
-          <p className="mt-3 text-sm font-medium text-ivoire">
+          <p className="mt-auto pt-3 text-sm font-medium text-ivoire">
             &Agrave; partir de {startingPrice}&nbsp;&euro;
           </p>
         </CardContent>

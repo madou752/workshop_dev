@@ -116,7 +116,7 @@ export default function Footer() {
               <ul className="mt-5 space-y-3">
                 {(Object.keys(categoryLabel) as ProductCategory[]).map((c) => (
                   <li key={c}>
-                    <Link to={`/boutique?category=${c}`} className={link}>
+                    <Link to={`/collection/${c}`} className={link}>
                       {categoryLabel[c]}
                     </Link>
                   </li>

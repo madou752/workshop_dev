@@ -35,6 +35,15 @@ export interface CartLine {
   sizeLabel: string;
   priceEUR: number;
   quantity: number;
+  /** Product photo, shown in the cart and checkout summary. */
+  image?: string;
+}
+
+export type ShippingMethod = "signature" | "express";
+
+export interface OrderGift {
+  message: string;
+  hidePrices: boolean;
 }
 
 export interface OrderRequest {
@@ -55,6 +64,19 @@ export interface OrderRequest {
     cardholderName: string;
     cardNumberLast4: string;
   };
+  shippingMethod: ShippingMethod;
+  gift?: OrderGift;
+}
+
+export interface OrderConfirmationItem {
+  name: string;
+  sizeLabel: string;
+  quantity: number;
+  lineTotal: number;
+  lotNumber: string;
+  origin: string;
+  altitude: string;
+  image: string | null;
 }
 
 export interface OrderConfirmation {
@@ -62,5 +84,9 @@ export interface OrderConfirmation {
   createdAt: string;
   totalEUR: number;
   status: "confirmed";
+  customerName: string;
+  items: OrderConfirmationItem[];
+  shipping: { method: ShippingMethod; label: string; priceEUR: number } | null;
+  gift: OrderGift | null;
   receiptHtml: string;
 }

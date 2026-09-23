@@ -1,30 +1,26 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, type ReactNode } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Check } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { clearCart } from "@/features/cart/cartSlice";
 import { usePlaceOrderMutation } from "@/api/apiSlice";
 import CreditCardForm, { type CardDetails } from "@/components/CreditCardForm";
+import AirBottle from "@/components/AirBottle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { shippingOptions } from "@/lib/shipping";
+import type { ShippingMethod } from "@/types/product";
 
-interface ShippingDetails {
-  fullName: string;
-  email: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  country: string;
-}
+type Step = 1 | 2 | 3;
 
-const emptyShipping: ShippingDetails = {
-  fullName: "",
-  email: "",
-  address: "",
-  city: "",
-  postalCode: "",
-  country: "",
-};
+const steps: { id: Step; label: string }[] = [
+  { id: 1, label: "Coordonnées" },
+  { id: 2, label: "Livraison" },
+  { id: 3, label: "Paiement" },
+];
+
+const GIFT_MESSAGE_MAX = 300;
 
 const emptyCard: CardDetails = {
   cardholderName: "",
@@ -33,30 +29,95 @@ const emptyCard: CardDetails = {
   cvc: "",
 };
 
+function Field({
+  id,
+  label,
+  children,
+}: {
+  id: string;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={id}>{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+/** A finished step collapses to a one-line summary with an edit link. */
+function StepSummary({
+  label,
+  lines,
+  onEdit,
+}: {
+  label: string;
+  lines: string[];
+  onEdit: () => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-ardoise py-5">
+      <div>
+        <p className="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-or">
+          <Check className="size-3.5" /> {label}
+        </p>
+        {lines.map((l) => (
+          <p key={l} className="mt-1 text-sm text-ivoire/70">
+            {l}
+          </p>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={onEdit}
+        className="text-xs uppercase tracking-[0.2em] text-ivoire/50 underline-offset-4 transition-colors hover:text-ivoire hover:underline"
+      >
+        Modifier
+      </button>
+    </div>
+  );
+}
+
 export default function CheckoutPage() {
   const lines = useAppSelector((state) => state.cart.lines);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [placeOrder, { isLoading }] = usePlaceOrderMutation();
 
-  const [shipping, setShipping] = useState(emptyShipping);
+  const [step, setStep] = useState<Step>(1);
+  const [contact, setContact] = useState({ fullName: "", email: "" });
+  const [address, setAddress] = useState({
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "France",
+  });
+  const [method, setMethod] = useState<ShippingMethod>("signature");
+  const [isGift, setIsGift] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
+  const [hidePrices, setHidePrices] = useState(true);
   const [card, setCard] = useState(emptyCard);
   const [error, setError] = useState<string | null>(null);
 
-  const total = lines.reduce(
-    (sum, line) => sum + line.priceEUR * line.quantity,
-    0,
-  );
-
   if (lines.length === 0) {
     return (
-      <div className="mx-auto max-w-3xl px-6 py-20 text-center text-ivoire/60">
-        Votre panier est vide &mdash; rien à commander.
+      <div className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <p className="font-serif text-2xl font-light text-ivoire/80">
+          Votre panier est vide &mdash; rien à commander.
+        </p>
+        <Button asChild size="lg" className="mt-8 rounded-full px-8">
+          <Link to="/boutique">Découvrir la collection</Link>
+        </Button>
       </div>
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const shipping = shippingOptions.find((o) => o.method === method)!;
+  const subtotal = lines.reduce((sum, l) => sum + l.priceEUR * l.quantity, 0);
+  const total = subtotal + shipping.priceEUR;
+
+  const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -73,18 +134,13 @@ export default function CheckoutPage() {
           sizeId: line.sizeId,
           quantity: line.quantity,
         })),
-        customer: {
-          fullName: shipping.fullName,
-          email: shipping.email,
-          address: shipping.address,
-          city: shipping.city,
-          postalCode: shipping.postalCode,
-          country: shipping.country,
-        },
+        customer: { ...contact, ...address },
         payment: {
           cardholderName: card.cardholderName,
           cardNumberLast4: digits.slice(-4),
         },
+        shippingMethod: method,
+        ...(isGift && { gift: { message: giftMessage, hidePrices } }),
       }).unwrap();
 
       dispatch(clearCart());
@@ -95,129 +151,339 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-14">
-      <h1 className="font-serif text-3xl text-ivoire">Commande</h1>
+    <div className="mx-auto max-w-6xl px-6 py-14">
+      <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+        Commande
+      </p>
+      <h1 className="mt-3 font-serif text-4xl font-light text-ivoire">
+        Finaliser votre commande
+      </h1>
 
-      <form onSubmit={handleSubmit} className="mt-8 grid gap-10 sm:grid-cols-2">
-        <div className="space-y-6">
-          <div className="space-y-4 rounded border border-ardoise bg-brume-profond p-6">
-            <p className="text-sm font-medium uppercase tracking-wide text-ivoire/70">
-              Coordonnées de livraison
-            </p>
-            <div className="space-y-1.5">
-              <Label htmlFor="ship-name">Nom complet</Label>
-              <Input
-                id="ship-name"
-                required
-                value={shipping.fullName}
-                onChange={(e) =>
-                  setShipping({ ...shipping, fullName: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ship-email">E-mail</Label>
-              <Input
-                id="ship-email"
-                required
-                type="email"
-                value={shipping.email}
-                onChange={(e) =>
-                  setShipping({ ...shipping, email: e.target.value })
-                }
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ship-address">Adresse</Label>
-              <Input
-                id="ship-address"
-                required
-                value={shipping.address}
-                onChange={(e) =>
-                  setShipping({ ...shipping, address: e.target.value })
-                }
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="ship-city">Ville</Label>
+      <ol className="mt-8 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em]">
+        {steps.map((s, i) => (
+          <li key={s.id} className="flex items-center gap-3">
+            <span
+              className={`flex items-center gap-2 ${
+                s.id === step
+                  ? "text-ivoire"
+                  : s.id < step
+                    ? "text-or"
+                    : "text-ivoire/35"
+              }`}
+            >
+              <span
+                className={`flex size-6 items-center justify-center rounded-full border text-[10px] ${
+                  s.id === step
+                    ? "border-ivoire"
+                    : s.id < step
+                      ? "border-or"
+                      : "border-ivoire/25"
+                }`}
+              >
+                {s.id < step ? <Check className="size-3" /> : s.id}
+              </span>
+              <span className="hidden sm:inline">{s.label}</span>
+            </span>
+            {i < steps.length - 1 && (
+              <span className="h-px w-8 bg-ivoire/15 sm:w-14" />
+            )}
+          </li>
+        ))}
+      </ol>
+
+      <div className="mt-10 grid gap-12 lg:grid-cols-[1.4fr_1fr]">
+        <div>
+          {step > 1 && (
+            <StepSummary
+              label="Coordonnées"
+              lines={[contact.fullName, contact.email]}
+              onEdit={() => setStep(1)}
+            />
+          )}
+          {step > 2 && (
+            <StepSummary
+              label="Livraison"
+              lines={[
+                `${address.address}, ${address.postalCode} ${address.city}, ${address.country}`,
+                shipping.label + (isGift ? " · Emballage cadeau" : ""),
+              ]}
+              onEdit={() => setStep(2)}
+            />
+          )}
+
+          {step === 1 && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setStep(2);
+              }}
+              className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-500"
+            >
+              <h2 className="font-serif text-2xl font-light text-ivoire">
+                Vos coordonnées
+              </h2>
+              <Field id="ship-name" label="Nom complet">
                 <Input
-                  id="ship-city"
+                  id="ship-name"
                   required
-                  value={shipping.city}
+                  autoComplete="name"
+                  value={contact.fullName}
                   onChange={(e) =>
-                    setShipping({ ...shipping, city: e.target.value })
+                    setContact({ ...contact, fullName: e.target.value })
                   }
                 />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ship-postal">Code postal</Label>
+              </Field>
+              <Field id="ship-email" label="E-mail">
                 <Input
-                  id="ship-postal"
+                  id="ship-email"
                   required
-                  value={shipping.postalCode}
+                  type="email"
+                  autoComplete="email"
+                  value={contact.email}
                   onChange={(e) =>
-                    setShipping({ ...shipping, postalCode: e.target.value })
+                    setContact({ ...contact, email: e.target.value })
                   }
                 />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ship-country">Pays</Label>
-              <Input
-                id="ship-country"
-                required
-                value={shipping.country}
-                onChange={(e) =>
-                  setShipping({ ...shipping, country: e.target.value })
-                }
-              />
-            </div>
-          </div>
+              </Field>
+              <Button type="submit" size="lg" className="rounded-full px-8">
+                Continuer vers la livraison
+              </Button>
+            </form>
+          )}
 
-          <CreditCardForm value={card} onChange={setCard} />
+          {step === 2 && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setStep(3);
+              }}
+              className="animate-in fade-in slide-in-from-bottom-2 space-y-5 pt-6 duration-500"
+            >
+              <h2 className="font-serif text-2xl font-light text-ivoire">
+                Livraison
+              </h2>
+              <Field id="ship-address" label="Adresse">
+                <Input
+                  id="ship-address"
+                  required
+                  autoComplete="street-address"
+                  value={address.address}
+                  onChange={(e) =>
+                    setAddress({ ...address, address: e.target.value })
+                  }
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-4">
+                <Field id="ship-postal" label="Code postal">
+                  <Input
+                    id="ship-postal"
+                    required
+                    autoComplete="postal-code"
+                    value={address.postalCode}
+                    onChange={(e) =>
+                      setAddress({ ...address, postalCode: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field id="ship-city" label="Ville">
+                  <Input
+                    id="ship-city"
+                    required
+                    autoComplete="address-level2"
+                    value={address.city}
+                    onChange={(e) =>
+                      setAddress({ ...address, city: e.target.value })
+                    }
+                  />
+                </Field>
+              </div>
+              <Field id="ship-country" label="Pays">
+                <Input
+                  id="ship-country"
+                  required
+                  autoComplete="country-name"
+                  value={address.country}
+                  onChange={(e) =>
+                    setAddress({ ...address, country: e.target.value })
+                  }
+                />
+              </Field>
+
+              <fieldset className="space-y-3 pt-2">
+                <legend className="mb-3 text-[11px] uppercase tracking-[0.25em] text-gris">
+                  Mode de livraison
+                </legend>
+                {shippingOptions.map((o) => (
+                  <label
+                    key={o.method}
+                    className={`flex cursor-pointer items-center justify-between gap-4 rounded-sm border px-5 py-4 transition-colors ${
+                      method === o.method
+                        ? "border-or bg-or/5"
+                        : "border-ardoise hover:border-gris-fonce"
+                    }`}
+                  >
+                    <span className="flex items-center gap-4">
+                      <input
+                        type="radio"
+                        name="shipping"
+                        value={o.method}
+                        checked={method === o.method}
+                        onChange={() => setMethod(o.method)}
+                        className="accent-[#c9a961]"
+                      />
+                      <span>
+                        <span className="block font-serif text-lg text-ivoire">
+                          {o.label}
+                        </span>
+                        <span className="block text-sm text-gris">
+                          {o.detail}
+                        </span>
+                      </span>
+                    </span>
+                    <span className="text-sm text-ivoire">
+                      {o.priceEUR === 0 ? "Offerte" : `${o.priceEUR} €`}
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
+
+              <div className="rounded-sm border border-ardoise px-5 py-4">
+                <label className="flex cursor-pointer items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={isGift}
+                    onChange={(e) => setIsGift(e.target.checked)}
+                    className="accent-[#c9a961]"
+                  />
+                  <span className="font-serif text-lg text-ivoire">
+                    C&rsquo;est un cadeau
+                  </span>
+                </label>
+                {isGift && (
+                  <div className="mt-4 animate-in fade-in space-y-4 duration-300">
+                    <Field id="gift-message" label="Message manuscrit (facultatif)">
+                      <textarea
+                        id="gift-message"
+                        rows={3}
+                        maxLength={GIFT_MESSAGE_MAX}
+                        value={giftMessage}
+                        onChange={(e) => setGiftMessage(e.target.value)}
+                        placeholder="Quelques mots, calligraphiés à la main sur une carte de la Maison."
+                        className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-ivoire placeholder:text-ivoire/30 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                      />
+                    </Field>
+                    <p className="-mt-2 text-right text-xs text-ivoire/40">
+                      {giftMessage.length}/{GIFT_MESSAGE_MAX}
+                    </p>
+                    <label className="flex cursor-pointer items-center gap-3 text-sm text-ivoire/70">
+                      <input
+                        type="checkbox"
+                        checked={hidePrices}
+                        onChange={(e) => setHidePrices(e.target.checked)}
+                        className="accent-[#c9a961]"
+                      />
+                      Ne pas faire figurer les prix dans le colis
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              <Button type="submit" size="lg" className="rounded-full px-8">
+                Continuer vers le paiement
+              </Button>
+            </form>
+          )}
+
+          {step === 3 && (
+            <form
+              onSubmit={handlePay}
+              className="animate-in fade-in slide-in-from-bottom-2 space-y-5 pt-6 duration-500"
+            >
+              <h2 className="font-serif text-2xl font-light text-ivoire">
+                Paiement
+              </h2>
+              <CreditCardForm value={card} onChange={setCard} />
+              {error && <p className="text-sm text-destructive">{error}</p>}
+              <Button
+                type="submit"
+                size="lg"
+                disabled={isLoading}
+                className="w-full rounded-full"
+              >
+                {isLoading ? "Traitement en cours..." : `Payer ${total} €`}
+              </Button>
+              <p className="text-center text-xs text-ivoire/40">
+                Paiement de démonstration &mdash; aucune transaction réelle
+                n&rsquo;est effectuée.
+              </p>
+            </form>
+          )}
         </div>
 
-        <div className="h-fit space-y-4 rounded border border-ardoise bg-brume-profond p-6">
-          <p className="text-sm font-medium uppercase tracking-wide text-ivoire/70">
+        <aside className="h-fit rounded-sm border border-ardoise bg-brume-profond p-6 lg:sticky lg:top-24">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-gris">
             Récapitulatif
           </p>
-          <ul className="space-y-2 text-sm">
+          <ul className="mt-4 divide-y divide-ardoise">
             {lines.map((line) => (
               <li
                 key={`${line.productId}-${line.sizeId}`}
-                className="flex justify-between"
+                className="flex items-center gap-4 py-4"
               >
-                <span className="text-ivoire/70">
-                  {line.name} ({line.sizeLabel}) &times; {line.quantity}
-                </span>
-                <span className="text-ivoire">
+                <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-nuit-profond">
+                  {line.image ? (
+                    <img
+                      src={encodeURI(line.image)}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <AirBottle size="mini" className="scale-75" />
+                  )}
+                  <span className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-or text-[10px] font-medium text-nuit">
+                    {line.quantity}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-serif text-base text-ivoire">
+                    {line.name}
+                  </p>
+                  <p className="text-xs text-gris">{line.sizeLabel}</p>
+                </div>
+                <p className="text-sm text-ivoire">
                   {line.priceEUR * line.quantity}&nbsp;&euro;
-                </span>
+                </p>
               </li>
             ))}
           </ul>
-          <div className="flex justify-between border-t border-ardoise pt-3 font-medium text-ivoire">
-            <span>Total</span>
-            <span>{total}&nbsp;&euro;</span>
-          </div>
-
-          {error && <p className="text-sm text-destructive">{error}</p>}
-
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isLoading}
-            className="w-full rounded-full"
-          >
-            {isLoading ? "Traitement en cours..." : `Payer ${total} €`}
-          </Button>
-          <p className="text-center text-xs text-ivoire/40">
-            Paiement de démonstration &mdash; aucune transaction réelle
-            n&rsquo;est effectuée.
-          </p>
-        </div>
-      </form>
+          <dl className="mt-2 space-y-2 border-t border-ardoise pt-4 text-sm">
+            <div className="flex justify-between text-ivoire/70">
+              <dt>Sous-total</dt>
+              <dd>{subtotal}&nbsp;&euro;</dd>
+            </div>
+            <div className="flex justify-between text-ivoire/70">
+              <dt>{shipping.label}</dt>
+              <dd>
+                {shipping.priceEUR === 0
+                  ? "Offerte"
+                  : `${shipping.priceEUR} €`}
+              </dd>
+            </div>
+            {isGift && (
+              <div className="flex justify-between text-ivoire/70">
+                <dt>Emballage cadeau</dt>
+                <dd>Offert</dd>
+              </div>
+            )}
+            <div className="flex items-baseline justify-between border-t border-or/40 pt-3">
+              <dt className="text-ivoire">Total</dt>
+              <dd className="font-serif text-2xl text-ivoire">
+                {total}&nbsp;&euro;
+              </dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
     </div>
   );
 }

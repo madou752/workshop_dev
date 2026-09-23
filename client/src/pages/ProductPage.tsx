@@ -6,11 +6,11 @@ import {
   useGetProductsQuery,
 } from "@/api/apiSlice";
 import { useAppDispatch } from "@/app/hooks";
-import { addLine } from "@/features/cart/cartSlice";
+import { addLine, openCart } from "@/features/cart/cartSlice";
 import SizeSelector from "@/components/SizeSelector";
 import AirBottle from "@/components/AirBottle";
 import ProductCard from "@/components/ProductCard";
-import SunMark from "@/components/brand/SunMark";
+import Certificate from "@/components/Certificate";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { categoryLabel } from "@/lib/categories";
@@ -50,6 +50,28 @@ function relatedProducts(all: Product[] | undefined, current: Product) {
   return [...sameCategory, ...rest].slice(0, 3);
 }
 
+function Breadcrumb({ product, className = "" }: { product: Product; className?: string }) {
+  return (
+    <nav
+      aria-label="Fil d'Ariane"
+      className={`text-[11px] uppercase tracking-[0.25em] text-gris ${className}`}
+    >
+      <Link to="/boutique" className="hover:text-ivoire">
+        La Collection
+      </Link>
+      <span className="mx-3 text-gris-fonce">/</span>
+      <Link
+        to={`/collection/${product.category}`}
+        className="hover:text-ivoire"
+      >
+        {categoryLabel[product.category]}
+      </Link>
+      <span className="mx-3 text-gris-fonce">/</span>
+      <span className="text-ivoire/80">{product.name}</span>
+    </nav>
+  );
+}
+
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, isLoading, isError } = useGetProductBySlugQuery(
@@ -87,7 +109,7 @@ export default function ProductPage() {
   const activeSize =
     product.sizes.find((s) => s.id === selectedSizeId) ?? product.sizes[0];
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (showCart = true) => {
     dispatch(
       addLine({
         productId: product.id,
@@ -96,8 +118,10 @@ export default function ProductPage() {
         sizeLabel: activeSize.label,
         priceEUR: activeSize.priceEUR,
         quantity: 1,
+        image: product.image,
       }),
     );
+    if (showCart) dispatch(openCart());
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
   };
@@ -134,7 +158,7 @@ export default function ProductPage() {
           <Button
             size="sm"
             className="shrink-0 rounded-full px-5"
-            onClick={handleAddToCart}
+            onClick={() => handleAddToCart()}
             tabIndex={showBuyBar ? 0 : -1}
           >
             {justAdded ? "Ajouté" : "Ajouter au panier"}
@@ -142,27 +166,12 @@ export default function ProductPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 pb-24 pt-10">
-        <nav
-          aria-label="Fil d'Ariane"
-          className="text-[11px] uppercase tracking-[0.25em] text-gris"
-        >
-          <Link to="/boutique" className="hover:text-ivoire">
-            La Collection
-          </Link>
-          <span className="mx-3 text-gris-fonce">/</span>
-          <Link
-            to={`/boutique?category=${product.category}`}
-            className="hover:text-ivoire"
-          >
-            {categoryLabel[product.category]}
-          </Link>
-          <span className="mx-3 text-gris-fonce">/</span>
-          <span className="text-ivoire/80">{product.name}</span>
-        </nav>
-
-        <div className="mt-8 grid gap-12 lg:grid-cols-2 lg:gap-16">
-          <div className="lg:sticky lg:top-36 lg:self-start">
+      <div className="mx-auto max-w-6xl px-6 pb-24 pt-10 lg:pt-14">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          {/* Breadcrumb and photo stick together, from where they start, so
+              neither shifts while the details scroll past. */}
+          <div className="lg:sticky lg:top-32 lg:self-start">
+            <Breadcrumb product={product} className="mb-8" />
             {product.image ? (
               <div className="overflow-hidden rounded-sm border border-ardoise bg-nuit-profond">
                 <img
@@ -173,7 +182,7 @@ export default function ProductPage() {
                 />
               </div>
             ) : (
-              <div className="relative flex items-center justify-center overflow-hidden rounded-sm border border-ardoise bg-nuit-profond py-14 lg:h-[calc(100svh-11rem)] lg:py-0">
+              <div className="relative flex items-center justify-center overflow-hidden rounded-sm border border-ardoise bg-nuit-profond py-14 lg:h-[calc(100svh-13rem)] lg:py-0">
                 <div
                   className="animate-drift pointer-events-none absolute inset-0"
                   style={{
@@ -233,14 +242,14 @@ export default function ProductPage() {
               <Button
                 size="lg"
                 className="rounded-full px-8"
-                onClick={handleAddToCart}
+                onClick={() => handleAddToCart()}
               >
                 Ajouter au panier &mdash; {activeSize.priceEUR}&nbsp;&euro;
               </Button>
               <button
                 type="button"
                 onClick={() => {
-                  handleAddToCart();
+                  handleAddToCart(false);
                   navigate("/commande");
                 }}
                 className="text-sm uppercase tracking-[0.2em] text-ivoire/60 transition-colors hover:text-or"
@@ -302,35 +311,15 @@ export default function ProductPage() {
 
             <section className="mt-14">
               <p className={eyebrow}>Authenticité</p>
-              <div className="mt-6 rounded-sm bg-ivoire p-8 text-nuit shadow-2xl shadow-black/40 sm:p-10">
-                <div className="flex items-start justify-between gap-6">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.3em] text-gris-fonce">
-                      Certificat d&rsquo;authenticité
-                    </p>
-                    <p className="mt-3 font-serif text-2xl">{product.name}</p>
-                  </div>
-                  <SunMark
-                    tone="etiquette"
-                    className="size-12 shrink-0"
-                  />
-                </div>
-                <div className="my-6 h-px w-12 bg-or" />
-                <dl className="grid grid-cols-2 gap-y-4 text-sm">
-                  <dt className="text-gris-fonce">Lot</dt>
-                  <dd className="text-right font-serif text-lg">
-                    {product.lotNumber}
-                  </dd>
-                  <dt className="text-gris-fonce">Origine</dt>
-                  <dd className="text-right">{product.origin}</dd>
-                  <dt className="text-gris-fonce">Altitude</dt>
-                  <dd className="text-right">{product.altitude}</dd>
-                </dl>
-                <p className="mt-8 border-t border-nuit/15 pt-5 font-serif text-sm italic text-gris-fonce">
-                  Scellé sur place et numéroté à la main &mdash; Maison
-                  Lahist&rsquo;air.
-                </p>
-              </div>
+              <Certificate
+                className="mt-6"
+                title={product.name}
+                rows={[
+                  { label: "Lot", value: product.lotNumber, emphasis: true },
+                  { label: "Origine", value: product.origin },
+                  { label: "Altitude", value: product.altitude },
+                ]}
+              />
             </section>
           </div>
         </div>
