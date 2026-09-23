@@ -7,3 +7,6 @@ server/data/db.json
 
 # Raw video sources (optimised versions live in client/public/videos)
 video-src/
+
+# Vercel build output and local project link
+.vercel/
