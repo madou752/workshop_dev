@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HomePage from "@/pages/HomePage";
@@ -10,11 +10,16 @@ import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
 import AboutPage from "@/pages/AboutPage";
 
 export default function App() {
+  const location = useLocation();
+
   return (
     <div className="flex min-h-screen flex-col bg-nuit text-ivoire">
       <Navbar />
-      <main className="flex-1">
-        <Routes>
+      <main
+        key={location.pathname}
+        className="flex-1 animate-in fade-in duration-300"
+      >
+        <Routes location={location}>
           <Route path="/" element={<HomePage />} />
           <Route path="/boutique" element={<ShopPage />} />
           <Route path="/produit/:slug" element={<ProductPage />} />

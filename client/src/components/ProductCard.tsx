@@ -16,16 +16,16 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link to={`/produit/${product.slug}`} className="group block">
-      <Card className="overflow-hidden border-ardoise bg-brume-profond py-0 transition-shadow hover:shadow-xl hover:shadow-black/30">
+      <Card className="overflow-hidden border-ardoise bg-brume-profond py-0 transition-all duration-300 hover:-translate-y-1 hover:border-or/40 hover:shadow-xl hover:shadow-black/30">
         <div className="relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-nuit">
           <AirBottle
             size="card"
             tagline={product.tagline}
             volumeMl={product.sizes[0].volumeMl}
-            className="scale-90 transition-transform duration-500 group-hover:scale-100"
+            className="scale-90 transition-transform duration-500 ease-out group-hover:scale-100"
           />
           {product.limitedEdition && (
-            <Badge className="absolute left-3 top-3 uppercase tracking-wide">
+            <Badge className="absolute left-3 top-3 uppercase tracking-wide animate-in fade-in zoom-in-50 duration-500">
               Édition Limitée
             </Badge>
           )}

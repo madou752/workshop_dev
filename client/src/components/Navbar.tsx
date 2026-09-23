@@ -35,10 +35,18 @@ export default function Navbar() {
           >
             Notre Maison
           </NavLink>
-          <Button asChild variant="outline" size="sm" className="gap-2 rounded-full">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded-full transition-colors hover:border-or hover:text-or"
+          >
             <Link to="/panier">
               Panier
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-or text-xs font-medium text-nuit">
+              <span
+                key={itemCount}
+                className="animate-in zoom-in-50 duration-300 inline-flex h-5 w-5 items-center justify-center rounded-full bg-or text-xs font-medium text-nuit"
+              >
                 {itemCount}
               </span>
             </Link>

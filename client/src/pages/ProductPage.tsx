@@ -69,13 +69,23 @@ export default function ProductPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-14">
       <div className="grid gap-12 sm:grid-cols-2">
-        <div className="flex items-center justify-center rounded-3xl border border-ardoise bg-nuit-profond py-14">
+        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-ardoise bg-nuit-profond py-14">
+          <div
+            className="animate-drift pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 50% 60% at 65% 55%, rgba(201,169,97,0.1), transparent 70%)",
+            }}
+          />
           <AirBottle
+            key={activeSize.id}
             size="large"
             tagline={product.tagline}
             altitude={product.altitude}
             volumeMl={activeSize.volumeMl}
             lotNumber={product.lotNumber}
+            floating
+            className="relative animate-in fade-in zoom-in-95 duration-300"
           />
         </div>
         <div>

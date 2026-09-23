@@ -9,6 +9,8 @@ interface AirBottleProps {
   volumeMl?: number;
   lotNumber?: string;
   className?: string;
+  /** Gentle idle float, for hero / spotlight presentations only. */
+  floating?: boolean;
 }
 
 const capGradient =
@@ -95,12 +97,13 @@ export default function AirBottle({
   volumeMl = 0,
   lotNumber,
   className,
+  floating = false,
 }: AirBottleProps) {
   const m = METRICS[size];
 
   return (
     <div
-      className={className}
+      className={floating ? `animate-float-bottle ${className ?? ""}` : className}
       style={{
         position: "relative",
         width: m.width,

@@ -111,6 +111,44 @@ body {
   background-color: var(--color-nuit-profond);
 }
 
+/* Ambient glow drift, straight from the brand charter's own keyframe. */
+@keyframes drift {
+  0% {
+    transform: translate(-8%, 0) scale(1);
+  }
+  50% {
+    transform: translate(6%, -4%) scale(1.08);
+  }
+  100% {
+    transform: translate(-8%, 0) scale(1);
+  }
+}
+
+@keyframes float-bottle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-drift {
+  animation: drift 16s ease-in-out infinite;
+}
+
+.animate-float-bottle {
+  animation: float-bottle 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift,
+  .animate-float-bottle {
+    animation: none;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
