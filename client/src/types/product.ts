@@ -1,8 +1,7 @@
 export type ProductCategory =
   | "desert"
   | "city"
-  | "landmark"
-  | "celebrity";
+  | "nature";
 
 export interface ProductSize {
   id: string;
@@ -22,6 +21,8 @@ export interface Product {
   altitude: string;
   composition: string;
   lotNumber: string;
+  /** Path of the product photo in client/public. */
+  image?: string;
   notes: string[];
   limitedEdition?: boolean;
   sizes: ProductSize[];

@@ -1,8 +1,25 @@
 import { Link } from "react-router-dom";
 import { useGetProductsQuery } from "@/api/apiSlice";
 import ProductCard from "@/components/ProductCard";
-import AirBottle from "@/components/AirBottle";
-import { Button } from "@/components/ui/button";
+import VideoHero from "@/components/VideoHero";
+
+const craftSteps = [
+  {
+    numeral: "I",
+    title: "La captation",
+    text: "L'air est recueilli à l'aube, au-dessus de la ligne des nuages, avant que le jour ne le réchauffe.",
+  },
+  {
+    numeral: "II",
+    title: "Le scellage",
+    text: "Le flacon est fermé sur place. Sa bague en laiton guilloché garantit une étanchéité parfaite.",
+  },
+  {
+    numeral: "III",
+    title: "La numérotation",
+    text: "Chaque lot reçoit un numéro unique, consigné au registre de la Maison.",
+  },
+];
 
 const categories = [
   {
@@ -16,14 +33,9 @@ const categories = [
     blurb: "Notes d'espresso et d'ambition.",
   },
   {
-    slug: "landmark",
-    label: "Air de Monument",
-    blurb: "Air raréfié des lieux élevés.",
-  },
-  {
-    slug: "celebrity",
-    label: "Collab Célébrité",
-    blurb: "De l'air, mais glamour.",
+    slug: "nature",
+    label: "Air Sauvage",
+    blurb: "Forêts, cascades et sommets.",
   },
 ];
 
@@ -33,49 +45,56 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="overflow-hidden border-b border-ardoise bg-nuit-profond text-ivoire">
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-24 sm:grid-cols-2 sm:items-center">
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <VideoHero />
+
+      <section className="border-b border-ardoise bg-nuit-profond">
+        <div className="mx-auto grid max-w-6xl gap-14 px-6 py-24 lg:grid-cols-[1fr_1.2fr] lg:items-center">
+          <div
+            role="img"
+            aria-label="Détail de l'étiquette Lahist'air"
+            className="mx-auto aspect-[4/5] w-full max-w-md rounded-sm border border-ivoire/10 bg-no-repeat lg:max-w-none"
+            style={{
+              backgroundImage: "url(/hero-altitude.jpg)",
+              backgroundSize: "260%",
+              backgroundPosition: "50% 62%",
+            }}
+          />
+          <div>
             <p className="text-xs uppercase tracking-[0.3em] text-or">
-              Édition 01 &mdash; Maison d&rsquo;air d&rsquo;exception
+              Savoir-faire
             </p>
-            <h1 className="mt-4 font-serif text-4xl leading-tight sm:text-5xl">
-              Respirer est un luxe.
-            </h1>
-            <p className="mt-5 max-w-md text-ivoire/70">
-              Une identité sobre pour un produit qui ne l&rsquo;est pas. Le
-              vide, mis en bouteille, présenté avec le sérieux qu&rsquo;il
-              mérite &mdash; du Sahara à l&rsquo;aube jusqu&rsquo;au sommet
-              de l&rsquo;Everest.
+            <h2 className="mt-4 font-serif text-4xl font-light leading-tight text-ivoire">
+              Chaque flacon est une altitude.
+            </h2>
+            <p className="mt-6 max-w-lg leading-relaxed text-ivoire/70">
+              Nous ne fabriquons rien. Nous choisissons un lieu, une heure,
+              une saison &mdash; puis nous refermons le flacon avant que
+              l&rsquo;instant ne s&rsquo;échappe.
             </p>
-            <Button asChild size="lg" className="mt-8 rounded-full">
-              <Link to="/boutique">Découvrir la Collection</Link>
-            </Button>
-          </div>
-          <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-ivoire/10 bg-nuit py-12">
-            <div
-              className="animate-drift pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(ellipse 60% 50% at 70% 40%, rgba(201,169,97,0.14), transparent 70%)",
-              }}
-            />
-            <AirBottle
-              size="large"
-              tagline="Air de haute altitude"
-              altitude="2 847 m"
-              volumeMl={500}
-              lotNumber="N° 0001"
-              floating
-              className="relative"
-            />
+            <ol className="mt-12 divide-y divide-ivoire/10 border-y border-ivoire/10">
+              {craftSteps.map((step) => (
+                <li key={step.numeral} className="grid grid-cols-[3rem_1fr] gap-4 py-6">
+                  <span className="font-serif text-xl text-or">
+                    {step.numeral}
+                  </span>
+                  <div>
+                    <p className="font-serif text-xl text-ivoire">
+                      {step.title}
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-gris">
+                      {step.text}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16">
         <h2 className="font-serif text-2xl text-ivoire">Collections</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-4">
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {categories.map((c, i) => (
             <Link
               key={c.slug}

@@ -21,7 +21,7 @@ En MongoDB, **un produit = un document**, tel quel. Aucune transformation.
 
 Une *collection*, c'est une liste de documents. On en a deux.
 
-### `products` — le catalogue (12 produits)
+### `products` — le catalogue (10 produits)
 
 ```json
 {

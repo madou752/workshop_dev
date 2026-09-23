@@ -7,8 +7,7 @@ const filters: { value: ProductCategory | "all"; label: string }[] = [
   { value: "all", label: "Tout" },
   { value: "desert", label: "Air du Désert" },
   { value: "city", label: "Air Urbain" },
-  { value: "landmark", label: "Air de Monument" },
-  { value: "celebrity", label: "Collab Célébrité" },
+  { value: "nature", label: "Air Sauvage" },
 ];
 
 export default function ShopPage() {

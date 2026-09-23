@@ -134,6 +134,12 @@ body {
   }
 }
 
+/* Full-screen video hero: 100vh fallback for browsers without svh. */
+.hero-video {
+  height: 100vh;
+  height: 100svh;
+}
+
 .animate-drift {
   animation: drift 16s ease-in-out infinite;
 }

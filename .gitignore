@@ -4,3 +4,6 @@ dist/
 .env
 server/data/db.json
 .claude/settings.local.json
+
+# Raw video sources (optimised versions live in client/public/videos)
+video-src/

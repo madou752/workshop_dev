@@ -1,13 +1,54 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useGetProductBySlugQuery } from "@/api/apiSlice";
+import { ConciergeBell, Gift, Package } from "lucide-react";
+import {
+  useGetProductBySlugQuery,
+  useGetProductsQuery,
+} from "@/api/apiSlice";
 import { useAppDispatch } from "@/app/hooks";
 import { addLine } from "@/features/cart/cartSlice";
 import SizeSelector from "@/components/SizeSelector";
 import AirBottle from "@/components/AirBottle";
+import ProductCard from "@/components/ProductCard";
+import SunMark from "@/components/brand/SunMark";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { categoryLabel } from "@/lib/categories";
+import type { Product } from "@/types/product";
+
+const noteTiers = ["Note de tête", "Note de cœur", "Note de fond"];
+
+const services = [
+  { icon: Package, label: "Livraison en coffret signature" },
+  { icon: Gift, label: "Emballage cadeau offert" },
+  { icon: ConciergeBell, label: "Conciergerie dédiée" },
+];
+
+const eyebrow = "text-[11px] uppercase tracking-[0.3em] text-or";
+
+/** True once `el` has scrolled up past the top of the viewport. */
+function useScrolledPastElement(el: HTMLElement | null) {
+  const [past, setPast] = useState(false);
+
+  useEffect(() => {
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) =>
+      setPast(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [el]);
+
+  return past;
+}
+
+function relatedProducts(all: Product[] | undefined, current: Product) {
+  if (!all) return [];
+  const others = all.filter((p) => p.id !== current.id);
+  const sameCategory = others.filter((p) => p.category === current.category);
+  const rest = others.filter((p) => p.category !== current.category);
+  return [...sameCategory, ...rest].slice(0, 3);
+}
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -15,10 +56,14 @@ export default function ProductPage() {
     slug ?? "",
     { skip: !slug },
   );
+  const { data: allProducts } = useGetProductsQuery();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [selectedSizeId, setSelectedSizeId] = useState<string | null>(null);
   const [justAdded, setJustAdded] = useState(false);
+  // State, not a ref: the buy row only mounts once the product has loaded.
+  const [buyRow, setBuyRow] = useState<HTMLDivElement | null>(null);
+  const showBuyBar = useScrolledPastElement(buyRow);
 
   if (isLoading) {
     return (
@@ -57,111 +102,252 @@ export default function ProductPage() {
     setTimeout(() => setJustAdded(false), 2000);
   };
 
-  const specs = [
-    { label: "Contenance", value: `${activeSize.volumeMl} ml` },
+  const provenance = [
     { label: "Origine", value: product.origin },
-    { label: "Composition", value: product.composition },
     { label: "Altitude", value: product.altitude },
-    { label: "Lot", value: product.lotNumber },
-    { label: "Prix", value: `${activeSize.priceEUR} €`, accent: true },
+    { label: "Composition", value: product.composition },
+    { label: "Contenance", value: `${activeSize.volumeMl} ml` },
   ];
 
+  const related = relatedProducts(allProducts, product);
+
   return (
-    <div className="mx-auto max-w-6xl px-6 py-14">
-      <div className="grid gap-12 sm:grid-cols-2">
-        <div className="relative flex items-center justify-center overflow-hidden rounded-3xl border border-ardoise bg-nuit-profond py-14">
-          <div
-            className="animate-drift pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 50% 60% at 65% 55%, rgba(201,169,97,0.1), transparent 70%)",
-            }}
-          />
-          <AirBottle
-            key={activeSize.id}
-            size="large"
-            tagline={product.tagline}
-            altitude={product.altitude}
-            volumeMl={activeSize.volumeMl}
-            lotNumber={product.lotNumber}
-            floating
-            className="relative animate-in fade-in zoom-in-95 duration-300"
-          />
-        </div>
-        <div>
-          <div className="flex items-center gap-3">
-            <p className="text-xs uppercase tracking-wide text-or">
-              {product.origin}
-            </p>
-            {product.limitedEdition && (
-              <Badge className="uppercase tracking-wide">
-                Édition Limitée
-              </Badge>
-            )}
-          </div>
-          <h1 className="mt-2 font-serif text-3xl text-ivoire">
-            {product.name}
-          </h1>
-          <p className="mt-3 text-ivoire/70">{product.description}</p>
-
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {product.notes.map((note) => (
-              <li
-                key={note}
-                className="rounded-full bg-brume px-3 py-1 text-xs text-ivoire/70"
-              >
-                {note}
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-8">
-            <p className="mb-3 text-sm font-medium uppercase tracking-wide text-ivoire/70">
-              Choisissez un format
-            </p>
-            <SizeSelector
-              sizes={product.sizes}
-              selectedId={activeSize.id}
-              onSelect={setSelectedSizeId}
-            />
-          </div>
-
-          <div className="mt-8 flex items-center gap-4">
-            <Button size="lg" className="rounded-full" onClick={handleAddToCart}>
-              Ajouter au panier &mdash; {activeSize.priceEUR}&nbsp;&euro;
-            </Button>
-            {justAdded && (
-              <span className="text-sm text-or">Ajouté au panier</span>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              handleAddToCart();
-              navigate("/commande");
-            }}
-            className="mt-3 block text-sm text-ivoire/50 underline underline-offset-4 hover:text-ivoire"
+    <div>
+      {/* Slides in under the navbar once the main buy button is out of view. */}
+      <div
+        aria-hidden={!showBuyBar}
+        className={`fixed inset-x-0 top-16 z-30 border-b border-or/20 bg-nuit/90 backdrop-blur-md transition-all duration-500 ${
+          showBuyBar
+            ? "translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-4 opacity-0"
+        }`}
+      >
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
+          <p className="truncate text-sm text-ivoire">
+            <span className="font-serif text-base">{product.name}</span>
+            <span className="text-gris">
+              {" "}
+              &middot; {activeSize.volumeMl}&nbsp;ml &middot;{" "}
+            </span>
+            <span className="text-or">{activeSize.priceEUR}&nbsp;&euro;</span>
+          </p>
+          <Button
+            size="sm"
+            className="shrink-0 rounded-full px-5"
+            onClick={handleAddToCart}
+            tabIndex={showBuyBar ? 0 : -1}
           >
-            Acheter maintenant
-          </button>
-
-          <Separator className="my-8" />
-
-          <dl className="grid gap-3 text-sm">
-            {specs.map((spec) => (
-              <div
-                key={spec.label}
-                className="flex items-center justify-between border-b border-ardoise pb-2"
-              >
-                <dt className="text-gris">{spec.label}</dt>
-                <dd className={spec.accent ? "text-or" : "text-ivoire"}>
-                  {spec.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+            {justAdded ? "Ajouté" : "Ajouter au panier"}
+          </Button>
         </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-6 pb-24 pt-10">
+        <nav
+          aria-label="Fil d'Ariane"
+          className="text-[11px] uppercase tracking-[0.25em] text-gris"
+        >
+          <Link to="/boutique" className="hover:text-ivoire">
+            La Collection
+          </Link>
+          <span className="mx-3 text-gris-fonce">/</span>
+          <Link
+            to={`/boutique?category=${product.category}`}
+            className="hover:text-ivoire"
+          >
+            {categoryLabel[product.category]}
+          </Link>
+          <span className="mx-3 text-gris-fonce">/</span>
+          <span className="text-ivoire/80">{product.name}</span>
+        </nav>
+
+        <div className="mt-8 grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <div className="lg:sticky lg:top-36 lg:self-start">
+            {product.image ? (
+              <div className="overflow-hidden rounded-sm border border-ardoise bg-nuit-profond">
+                <img
+                  src={encodeURI(product.image)}
+                  alt={`Flacon ${product.name}, ${product.origin}`}
+                  fetchPriority="high"
+                  className="aspect-square w-full animate-in fade-in object-cover duration-700"
+                />
+              </div>
+            ) : (
+              <div className="relative flex items-center justify-center overflow-hidden rounded-sm border border-ardoise bg-nuit-profond py-14 lg:h-[calc(100svh-11rem)] lg:py-0">
+                <div
+                  className="animate-drift pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      "radial-gradient(ellipse 50% 60% at 65% 55%, rgba(201,169,97,0.1), transparent 70%)",
+                  }}
+                />
+                <AirBottle
+                  key={activeSize.id}
+                  size="large"
+                  tagline={product.tagline}
+                  altitude={product.altitude}
+                  volumeMl={activeSize.volumeMl}
+                  lotNumber={product.lotNumber}
+                  floating
+                  className="relative animate-in fade-in zoom-in-95 duration-300"
+                />
+                <p className="absolute bottom-5 left-0 right-0 text-center text-[10px] uppercase tracking-[0.3em] text-gris">
+                  Lot {product.lotNumber} &middot; {product.altitude}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="flex items-center gap-3">
+              <p className={eyebrow}>{product.origin}</p>
+              {product.limitedEdition && (
+                <Badge className="uppercase tracking-wide">
+                  Édition Limitée
+                </Badge>
+              )}
+            </div>
+            <h1 className="mt-4 font-serif text-4xl font-light leading-tight text-ivoire sm:text-5xl">
+              {product.name}
+            </h1>
+            <p className="mt-3 font-serif text-xl italic text-ivoire/70">
+              {product.tagline}
+            </p>
+            <div className="mt-6 h-px w-16 bg-or" />
+            <p className="mt-6 leading-relaxed text-ivoire/70">
+              {product.description}
+            </p>
+
+            <div className="mt-10">
+              <p className="mb-4 text-[11px] uppercase tracking-[0.3em] text-ivoire/60">
+                Choisissez un format
+              </p>
+              <SizeSelector
+                sizes={product.sizes}
+                selectedId={activeSize.id}
+                onSelect={setSelectedSizeId}
+              />
+            </div>
+
+            <div ref={setBuyRow} className="mt-8 flex flex-wrap items-center gap-6">
+              <Button
+                size="lg"
+                className="rounded-full px-8"
+                onClick={handleAddToCart}
+              >
+                Ajouter au panier &mdash; {activeSize.priceEUR}&nbsp;&euro;
+              </Button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleAddToCart();
+                  navigate("/commande");
+                }}
+                className="text-sm uppercase tracking-[0.2em] text-ivoire/60 transition-colors hover:text-or"
+              >
+                Acheter maintenant
+              </button>
+            </div>
+            <p
+              aria-live="polite"
+              className="mt-3 h-5 text-sm text-or"
+            >
+              {justAdded && "Ajouté au panier"}
+            </p>
+
+            <ul className="mt-8 grid gap-4 border-y border-ivoire/10 py-6 sm:grid-cols-3">
+              {services.map(({ icon: Icon, label }) => (
+                <li key={label} className="flex items-center gap-3 text-sm text-ivoire/70">
+                  <Icon className="size-4 shrink-0 text-or" strokeWidth={1.25} />
+                  {label}
+                </li>
+              ))}
+            </ul>
+
+            <section className="mt-14">
+              <p className={eyebrow}>Notes</p>
+              <h2 className="mt-3 font-serif text-2xl font-light text-ivoire">
+                La composition olfactive
+              </h2>
+              <dl className="mt-6 divide-y divide-ivoire/10 border-y border-ivoire/10">
+                {product.notes.map((note, i) => (
+                  <div
+                    key={note}
+                    className="flex items-baseline justify-between gap-6 py-5"
+                  >
+                    <dt className="text-[11px] uppercase tracking-[0.25em] text-gris">
+                      {noteTiers[i] ?? "Note"}
+                    </dt>
+                    <dd className="font-serif text-2xl font-light text-ivoire">
+                      {note}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+            <section className="mt-14">
+              <p className={eyebrow}>Provenance</p>
+              <dl className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2">
+                {provenance.map((item) => (
+                  <div key={item.label} className="border-t border-ivoire/10 pt-4">
+                    <dt className="text-[11px] uppercase tracking-[0.25em] text-gris">
+                      {item.label}
+                    </dt>
+                    <dd className="mt-2 text-ivoire">{item.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+            <section className="mt-14">
+              <p className={eyebrow}>Authenticité</p>
+              <div className="mt-6 rounded-sm bg-ivoire p-8 text-nuit shadow-2xl shadow-black/40 sm:p-10">
+                <div className="flex items-start justify-between gap-6">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-gris-fonce">
+                      Certificat d&rsquo;authenticité
+                    </p>
+                    <p className="mt-3 font-serif text-2xl">{product.name}</p>
+                  </div>
+                  <SunMark
+                    tone="etiquette"
+                    className="size-12 shrink-0"
+                  />
+                </div>
+                <div className="my-6 h-px w-12 bg-or" />
+                <dl className="grid grid-cols-2 gap-y-4 text-sm">
+                  <dt className="text-gris-fonce">Lot</dt>
+                  <dd className="text-right font-serif text-lg">
+                    {product.lotNumber}
+                  </dd>
+                  <dt className="text-gris-fonce">Origine</dt>
+                  <dd className="text-right">{product.origin}</dd>
+                  <dt className="text-gris-fonce">Altitude</dt>
+                  <dd className="text-right">{product.altitude}</dd>
+                </dl>
+                <p className="mt-8 border-t border-nuit/15 pt-5 font-serif text-sm italic text-gris-fonce">
+                  Scellé sur place et numéroté à la main &mdash; Maison
+                  Lahist&rsquo;air.
+                </p>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        {related.length > 0 && (
+          <section className="mt-28 border-t border-ivoire/10 pt-16">
+            <p className={eyebrow}>La Collection</p>
+            <h2 className="mt-3 font-serif text-3xl font-light text-ivoire">
+              Vous aimerez aussi
+            </h2>
+            <div className="mt-8 grid gap-6 sm:grid-cols-3">
+              {related.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
