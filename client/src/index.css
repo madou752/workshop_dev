@@ -181,4 +181,12 @@ body {
   html {
     @apply font-sans;
   }
+  /* Tailwind v4 dropped the hand cursor on buttons; bring it back so they
+     read as clickable like links do. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled),
+  summary,
+  label:has(input[type="radio"], input[type="checkbox"]) {
+    cursor: pointer;
+  }
 }
