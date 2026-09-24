@@ -140,6 +140,22 @@ body {
   height: 100svh;
 }
 
+/* Every page change: a soft fade with a slight rise, never a hard cut. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 .animate-drift {
   animation: drift 16s ease-in-out infinite;
 }
@@ -166,7 +182,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-drift,
-  .animate-float-bottle {
+  .animate-float-bottle,
+  .animate-page-enter {
     animation: none;
   }
 }
@@ -188,5 +205,12 @@ body {
   summary,
   label:has(input[type="radio"], input[type="checkbox"]) {
     cursor: pointer;
+  }
+  /* One keyboard focus style for everything clickable: a gold outline that
+     stays visible on the dark background and on gold buttons alike.
+     Fields keep their own gold border on focus (see ui/input). */
+  :where(a, button, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid var(--color-or);
+    outline-offset: 3px;
   }
 }

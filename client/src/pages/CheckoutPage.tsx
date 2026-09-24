@@ -369,7 +369,7 @@ export default function CheckoutPage() {
                         value={giftMessage}
                         onChange={(e) => setGiftMessage(e.target.value)}
                         placeholder="Quelques mots, calligraphiés à la main sur une carte de la Maison."
-                        className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm text-ivoire placeholder:text-ivoire/30 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                        className="w-full rounded-sm border border-input bg-transparent px-3 py-2 text-sm text-ivoire placeholder:text-ivoire/30 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
                       />
                     </Field>
                     <p className="-mt-2 text-right text-xs text-ivoire/40">

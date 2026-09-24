@@ -26,7 +26,7 @@ export default function App() {
       <Navbar />
       <main
         key={location.pathname}
-        className="flex-1 animate-in fade-in duration-300"
+        className="flex-1 animate-page-enter"
       >
         <Routes location={location}>
           <Route path="/" element={<HomePage />} />

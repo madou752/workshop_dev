@@ -29,7 +29,7 @@ export default function CreditCardForm({
   onChange,
 }: CreditCardFormProps) {
   return (
-    <div className="space-y-4 rounded border border-ardoise bg-brume-profond p-6">
+    <div className="space-y-4 rounded-sm border border-ardoise bg-brume-profond p-6">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium uppercase tracking-wide text-ivoire/70">
           Coordonnées de paiement
