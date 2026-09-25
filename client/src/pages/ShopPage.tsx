@@ -1,6 +1,8 @@
 import { useSearchParams } from "react-router-dom";
 import { useGetProductsQuery } from "@/api/apiSlice";
 import ProductCard from "@/components/ProductCard";
+import { ProductGridSkeleton } from "@/components/Skeletons";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import type { ProductCategory } from "@/types/product";
 import { categoryLabel, collectionSlugs } from "@/lib/categories";
 
@@ -10,6 +12,7 @@ const filters: { value: ProductCategory | "all"; label: string }[] = [
 ];
 
 export default function ShopPage() {
+  useDocumentTitle("La Collection");
   const { data: products, isLoading, isError } = useGetProductsQuery();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeCategory = searchParams.get("category") ?? "all";
@@ -49,7 +52,9 @@ export default function ShopPage() {
       </div>
 
       {isLoading && (
-        <p className="mt-10 text-gris">Chargement de la collection...</p>
+        <div className="mt-10">
+          <ProductGridSkeleton />
+        </div>
       )}
       {isError && (
         <p className="mt-10 text-destructive">

@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import { useGetProductsQuery } from "@/api/apiSlice";
 import ProductCard from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/Skeletons";
 import VideoHero from "@/components/VideoHero";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { craftSteps } from "@/lib/maison";
 import { collections, collectionSlugs } from "@/lib/categories";
 
 export default function HomePage() {
-  const { data: products } = useGetProductsQuery();
+  useDocumentTitle();
+  const { data: products, isLoading } = useGetProductsQuery();
   const featured = products?.slice(0, 3) ?? [];
 
   return (
@@ -71,7 +74,7 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-20">
-        <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+        <p className="text-xs uppercase tracking-[0.3em] text-or">
           Les collections
         </p>
         <h2 className="mt-3 font-serif text-4xl font-light text-ivoire">
@@ -99,7 +102,7 @@ export default function HomePage() {
                 <p className="mt-1 text-sm text-ivoire/70">
                   {collections[c].blurb}
                 </p>
-                <p className="mt-4 text-[11px] uppercase tracking-[0.25em] text-or opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <p className="mt-4 text-xs uppercase tracking-[0.25em] text-or opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   Découvrir &rarr;
                 </p>
               </div>
@@ -108,12 +111,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {featured.length > 0 && (
+      {(isLoading || featured.length > 0) && (
         <section className="mx-auto max-w-6xl px-6 pb-20">
           <h2 className="font-serif text-2xl text-ivoire">
             Tendance du moment
           </h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-3">
+            {isLoading &&
+              [0, 1, 2].map((i) => <ProductCardSkeleton key={i} />)}
             {featured.map((product, i) => (
               <div
                 key={product.id}

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 const sections: { id: string; title: string; body: ReactNode }[] = [
   {
@@ -77,6 +78,11 @@ const sections: { id: string; title: string; body: ReactNode }[] = [
           utilisées à des fins publicitaires.
         </p>
         <p>
+          <strong>Code postal&nbsp;:</strong> pour vous proposer votre ville,
+          le code postal saisi (et lui seul) est envoyé à l&rsquo;API publique
+          de l&rsquo;État geo.api.gouv.fr.
+        </p>
+        <p>
           <strong>Conservation&nbsp;:</strong> jusqu&rsquo;à la fin du projet, puis
           suppression de la base de données.
         </p>
@@ -93,19 +99,28 @@ const sections: { id: string; title: string; body: ReactNode }[] = [
     id: "cookies",
     title: "Cookies",
     body: (
-      <p>
-        Ce site n&rsquo;utilise <strong>aucun cookie</strong> ni outil de
-        mesure d&rsquo;audience ou de publicité. C&rsquo;est pourquoi aucun
-        bandeau de consentement ne s&rsquo;affiche.
-      </p>
+      <>
+        <p>
+          Ce site n&rsquo;utilise <strong>aucun cookie</strong> ni outil de
+          mesure d&rsquo;audience ou de publicité.
+        </p>
+        <p>
+          Seul le contenu de votre panier est gardé dans le stockage local de
+          votre navigateur, pour qu&rsquo;il ne se vide pas si vous rechargez
+          la page. Il ne quitte pas votre appareil et sert uniquement au
+          fonctionnement du panier : c&rsquo;est pourquoi aucun bandeau de
+          consentement n&rsquo;est nécessaire.
+        </p>
+      </>
     ),
   },
 ];
 
 export default function LegalPage() {
+  useDocumentTitle("Mentions légales");
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
-      <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+      <p className="text-xs uppercase tracking-[0.3em] text-or">
         Informations légales
       </p>
       <h1 className="mt-4 font-serif text-4xl font-light text-ivoire sm:text-5xl">

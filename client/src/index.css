@@ -22,6 +22,8 @@
   --color-gris: #8e9aa6;
   --color-gris-clair: #b6bec7;
   --color-gris-fonce: #4a5561;
+  /* Error text: the shadcn red is too dark to read on the night background. */
+  --color-alerte: #e3867b;
 }
 
 @theme inline {

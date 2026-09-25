@@ -29,7 +29,7 @@ export default function CartLineItem({ line }: { line: CartLine }) {
             <p className="truncate font-serif text-lg leading-tight text-ivoire">
               {line.name}
             </p>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-gris">
+            <p className="mt-1 text-xs uppercase tracking-[0.2em] text-gris">
               {line.sizeLabel}
             </p>
           </div>

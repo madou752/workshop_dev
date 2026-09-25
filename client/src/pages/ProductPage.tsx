@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ConciergeBell, Gift, Package } from "lucide-react";
 import {
@@ -11,9 +12,13 @@ import SizeSelector from "@/components/SizeSelector";
 import AirBottle from "@/components/AirBottle";
 import ProductCard from "@/components/ProductCard";
 import Certificate from "@/components/Certificate";
+import ZoomImage from "@/components/ZoomImage";
+import { ProductPageSkeleton } from "@/components/Skeletons";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { categoryLabel } from "@/lib/categories";
+import { noteDescriptions } from "@/lib/notes";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import type { Product } from "@/types/product";
 
 const noteTiers = ["Note de tête", "Note de cœur", "Note de fond"];
@@ -24,22 +29,28 @@ const services = [
   { icon: ConciergeBell, label: "Conciergerie dédiée" },
 ];
 
-const eyebrow = "text-[11px] uppercase tracking-[0.3em] text-or";
+const eyebrow = "text-xs uppercase tracking-[0.3em] text-or";
 
-/** True once `el` has scrolled up past the top of the viewport. */
-function useScrolledPastElement(el: HTMLElement | null) {
-  const [past, setPast] = useState(false);
+/**
+ * Where `el` sits relative to the viewport: on screen, or scrolled up past
+ * the top. Starts as "visible" so no bar flashes before the first check.
+ */
+function useElementVisibility(el: HTMLElement | null) {
+  const [state, setState] = useState({ visible: true, past: false });
 
   useEffect(() => {
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) =>
-      setPast(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      setState({
+        visible: entry.isIntersecting,
+        past: !entry.isIntersecting && entry.boundingClientRect.top < 0,
+      }),
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, [el]);
 
-  return past;
+  return state;
 }
 
 function relatedProducts(all: Product[] | undefined, current: Product) {
@@ -54,7 +65,7 @@ function Breadcrumb({ product, className = "" }: { product: Product; className?:
   return (
     <nav
       aria-label="Fil d'Ariane"
-      className={`text-[11px] uppercase tracking-[0.25em] text-gris ${className}`}
+      className={`text-xs uppercase tracking-[0.25em] text-gris ${className}`}
     >
       <Link to="/boutique" className="hover:text-ivoire">
         La Collection
@@ -85,14 +96,21 @@ export default function ProductPage() {
   const [justAdded, setJustAdded] = useState(false);
   // State, not a ref: the buy row only mounts once the product has loaded.
   const [buyRow, setBuyRow] = useState<HTMLDivElement | null>(null);
-  const showBuyBar = useScrolledPastElement(buyRow);
+  const buyRowState = useElementVisibility(buyRow);
+  // Desktop: a bar under the navbar once the button has scrolled away.
+  // Phones: a bar at the bottom whenever the button is off screen.
+  const showTopBar = buyRowState.past;
+  const showBottomBar = !buyRowState.visible;
+  useDocumentTitle(product?.name);
+
+  // Keep the page's last lines (the footer) clear of the phone bottom bar.
+  useEffect(() => {
+    document.body.classList.add("max-lg:pb-20");
+    return () => document.body.classList.remove("max-lg:pb-20");
+  }, []);
 
   if (isLoading) {
-    return (
-      <div className="mx-auto max-w-6xl px-6 py-20 text-gris">
-        Chargement...
-      </div>
-    );
+    return <ProductPageSkeleton />;
   }
 
   if (isError || !product) {
@@ -137,34 +155,71 @@ export default function ProductPage() {
 
   return (
     <div>
-      {/* Slides in under the navbar once the main buy button is out of view. */}
-      <div
-        aria-hidden={!showBuyBar}
-        className={`fixed inset-x-0 top-16 z-30 border-b border-or/20 bg-nuit/90 backdrop-blur-md transition-all duration-500 ${
-          showBuyBar
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-4 opacity-0"
-        }`}
-      >
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
-          <p className="truncate text-sm text-ivoire">
-            <span className="font-serif text-base">{product.name}</span>
-            <span className="text-gris">
-              {" "}
-              &middot; {activeSize.volumeMl}&nbsp;ml &middot;{" "}
-            </span>
-            <span className="text-or">{activeSize.priceEUR}&nbsp;&euro;</span>
-          </p>
-          <Button
-            size="sm"
-            className="shrink-0 rounded-full px-5"
-            onClick={() => handleAddToCart()}
-            tabIndex={showBuyBar ? 0 : -1}
+      {/* The buy bars live on <body>: the page's entry animation uses a
+          transform, which would otherwise pin these fixed bars to the page
+          instead of the screen while it runs. */}
+      {createPortal(
+        <>
+          {/* Desktop: slides in under the navbar once the buy button is out of view. */}
+          <div
+            aria-hidden={!showTopBar}
+            className={`fixed inset-x-0 top-16 z-30 hidden border-b border-or/20 bg-nuit/90 backdrop-blur-md transition-all duration-500 lg:block ${
+              showTopBar
+                ? "translate-y-0 opacity-100"
+                : "pointer-events-none -translate-y-4 opacity-0"
+            }`}
           >
-            {justAdded ? "Ajouté" : "Ajouter au panier"}
-          </Button>
-        </div>
-      </div>
+            <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-6">
+              <p className="truncate text-sm text-ivoire">
+                <span className="font-serif text-base">{product.name}</span>
+                <span className="text-gris">
+                  {" "}
+                  &middot; {activeSize.volumeMl}&nbsp;ml &middot;{" "}
+                </span>
+                <span className="text-or">{activeSize.priceEUR}&nbsp;&euro;</span>
+              </p>
+              <Button
+                size="sm"
+                className="shrink-0 rounded-full px-5"
+                onClick={() => handleAddToCart()}
+                tabIndex={showTopBar ? 0 : -1}
+              >
+                {justAdded ? "Ajouté" : "Ajouter au panier"}
+              </Button>
+            </div>
+          </div>
+
+          {/* Phones: always within thumb reach while the main button is off screen. */}
+          <div
+            aria-hidden={!showBottomBar}
+            className={`fixed inset-x-0 bottom-0 z-30 border-t border-or/20 bg-nuit/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md transition-all duration-500 lg:hidden ${
+              showBottomBar
+                ? "translate-y-0 opacity-100"
+                : "pointer-events-none translate-y-full opacity-0"
+            }`}
+          >
+            <div className="flex h-16 items-center justify-between gap-4 px-5">
+              <div className="min-w-0">
+                <p className="truncate font-serif text-base text-ivoire">
+                  {product.name}
+                </p>
+                <p className="text-xs text-gris">
+                  {activeSize.volumeMl}&nbsp;ml &middot;{" "}
+                  <span className="text-or">{activeSize.priceEUR}&nbsp;&euro;</span>
+                </p>
+              </div>
+              <Button
+                className="h-10 shrink-0 rounded-full px-6"
+                onClick={() => handleAddToCart()}
+                tabIndex={showBottomBar ? 0 : -1}
+              >
+                {justAdded ? "Ajouté" : "Ajouter"}
+              </Button>
+            </div>
+          </div>
+        </>,
+        document.body,
+      )}
 
       <div className="mx-auto max-w-6xl px-6 pb-24 pt-10 lg:pt-14">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
@@ -173,14 +228,10 @@ export default function ProductPage() {
           <div className="lg:sticky lg:top-32 lg:self-start">
             <Breadcrumb product={product} className="mb-8" />
             {product.image ? (
-              <div className="overflow-hidden rounded-sm border border-ardoise bg-nuit-profond">
-                <img
-                  src={encodeURI(product.image)}
-                  alt={`Flacon ${product.name}, ${product.origin}`}
-                  fetchPriority="high"
-                  className="aspect-square w-full animate-in fade-in object-cover duration-700"
-                />
-              </div>
+              <ZoomImage
+                src={encodeURI(product.image)}
+                alt={`Flacon ${product.name}, ${product.origin}`}
+              />
             ) : (
               <div className="relative flex items-center justify-center overflow-hidden rounded-sm border border-ardoise bg-nuit-profond py-14 lg:h-[calc(100svh-13rem)] lg:py-0">
                 <div
@@ -200,7 +251,7 @@ export default function ProductPage() {
                   floating
                   className="relative animate-in fade-in zoom-in-95 duration-300"
                 />
-                <p className="absolute bottom-5 left-0 right-0 text-center text-[10px] uppercase tracking-[0.3em] text-gris">
+                <p className="absolute bottom-5 left-0 right-0 text-center text-[11px] uppercase tracking-[0.3em] text-gris">
                   Lot {product.lotNumber} &middot; {product.altitude}
                 </p>
               </div>
@@ -228,7 +279,7 @@ export default function ProductPage() {
             </p>
 
             <div className="mt-10">
-              <p className="mb-4 text-[11px] uppercase tracking-[0.3em] text-ivoire/60">
+              <p className="mb-4 text-xs uppercase tracking-[0.3em] text-ivoire/60">
                 Choisissez un format
               </p>
               <SizeSelector
@@ -284,11 +335,18 @@ export default function ProductPage() {
                     key={note}
                     className="flex items-baseline justify-between gap-6 py-5"
                   >
-                    <dt className="text-[11px] uppercase tracking-[0.25em] text-gris">
+                    <dt className="shrink-0 text-xs uppercase tracking-[0.25em] text-gris">
                       {noteTiers[i] ?? "Note"}
                     </dt>
-                    <dd className="font-serif text-2xl font-light text-ivoire">
-                      {note}
+                    <dd className="text-right">
+                      <span className="block font-serif text-2xl font-light text-ivoire">
+                        {note}
+                      </span>
+                      {noteDescriptions[note] && (
+                        <span className="mt-1 block max-w-xs text-sm leading-relaxed text-gris">
+                          {noteDescriptions[note]}
+                        </span>
+                      )}
                     </dd>
                   </div>
                 ))}
@@ -300,7 +358,7 @@ export default function ProductPage() {
               <dl className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2">
                 {provenance.map((item) => (
                   <div key={item.label} className="border-t border-ivoire/10 pt-4">
-                    <dt className="text-[11px] uppercase tracking-[0.25em] text-gris">
+                    <dt className="text-xs uppercase tracking-[0.25em] text-gris">
                       {item.label}
                     </dt>
                     <dd className="mt-2 text-ivoire">{item.value}</dd>

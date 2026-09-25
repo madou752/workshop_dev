@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import FormField from "@/components/FormField";
+import type { FieldErrors } from "@/lib/checkout";
 
 export interface CardDetails {
   cardholderName: string;
@@ -11,6 +12,8 @@ export interface CardDetails {
 interface CreditCardFormProps {
   value: CardDetails;
   onChange: (value: CardDetails) => void;
+  /** Messages keyed by field id (cc-name, cc-number, cc-expiry, cc-cvc). */
+  errors?: FieldErrors;
 }
 
 function formatCardNumber(raw: string) {
@@ -27,6 +30,7 @@ function formatExpiry(raw: string) {
 export default function CreditCardForm({
   value,
   onChange,
+  errors = {},
 }: CreditCardFormProps) {
   return (
     <div className="space-y-4 rounded-sm border border-ardoise bg-brume-profond p-6">
@@ -47,78 +51,82 @@ export default function CreditCardForm({
             <rect x="3" y="11" width="18" height="10" rx="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
           </svg>
-          <span className="text-xs">Paiement sécurisé</span>
+          <span className="text-xs">Paiement de démonstration</span>
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="cc-name">Titulaire de la carte</Label>
-        <Input
-          id="cc-name"
-          type="text"
-          required
-          autoComplete="cc-name"
-          value={value.cardholderName}
-          onChange={(e) =>
-            onChange({ ...value, cardholderName: e.target.value })
-          }
-          placeholder="Comme indiqué sur la carte"
-        />
-      </div>
-
-      <div className="space-y-1.5">
-        <Label htmlFor="cc-number">Numéro de carte</Label>
-        <Input
-          id="cc-number"
-          type="text"
-          inputMode="numeric"
-          required
-          autoComplete="cc-number"
-          value={value.cardNumber}
-          onChange={(e) =>
-            onChange({
-              ...value,
-              cardNumber: formatCardNumber(e.target.value),
-            })
-          }
-          placeholder="1234 5678 9012 3456"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="cc-expiry">Expiration</Label>
+      <FormField id="cc-name" label="Titulaire de la carte" error={errors["cc-name"]}>
+        {(a11y) => (
           <Input
-            id="cc-expiry"
+            id="cc-name"
             type="text"
-            inputMode="numeric"
-            required
-            autoComplete="cc-exp"
-            value={value.expiry}
+            autoComplete="cc-name"
+            value={value.cardholderName}
             onChange={(e) =>
-              onChange({ ...value, expiry: formatExpiry(e.target.value) })
+              onChange({ ...value, cardholderName: e.target.value })
             }
-            placeholder="MM/AA"
+            placeholder="Comme indiqué sur la carte"
+            {...a11y}
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="cc-cvc">CVC</Label>
+        )}
+      </FormField>
+
+      <FormField id="cc-number" label="Numéro de carte" error={errors["cc-number"]}>
+        {(a11y) => (
           <Input
-            id="cc-cvc"
+            id="cc-number"
             type="text"
             inputMode="numeric"
-            required
-            autoComplete="cc-csc"
-            value={value.cvc}
+            autoComplete="cc-number"
+            value={value.cardNumber}
             onChange={(e) =>
               onChange({
                 ...value,
-                cvc: e.target.value.replace(/\D/g, "").slice(0, 4),
+                cardNumber: formatCardNumber(e.target.value),
               })
             }
-            placeholder="123"
+            placeholder="1234 5678 9012 3456"
+            {...a11y}
           />
-        </div>
+        )}
+      </FormField>
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormField id="cc-expiry" label="Expiration" error={errors["cc-expiry"]}>
+          {(a11y) => (
+            <Input
+              id="cc-expiry"
+              type="text"
+              inputMode="numeric"
+              autoComplete="cc-exp"
+              value={value.expiry}
+              onChange={(e) =>
+                onChange({ ...value, expiry: formatExpiry(e.target.value) })
+              }
+              placeholder="MM/AA"
+              {...a11y}
+            />
+          )}
+        </FormField>
+        <FormField id="cc-cvc" label="CVC" error={errors["cc-cvc"]}>
+          {(a11y) => (
+            <Input
+              id="cc-cvc"
+              type="text"
+              inputMode="numeric"
+              autoComplete="cc-csc"
+              value={value.cvc}
+              onChange={(e) =>
+                onChange({
+                  ...value,
+                  cvc: e.target.value.replace(/\D/g, "").slice(0, 4),
+                })
+              }
+              placeholder="123"
+              {...a11y}
+            />
+          )}
+        </FormField>
       </div>
     </div>
   );

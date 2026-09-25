@@ -1,9 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/app/hooks";
 import CartLineItem from "@/components/CartLineItem";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { Button } from "@/components/ui/button";
 
 export default function CartPage() {
+  useDocumentTitle("Votre panier");
   const lines = useAppSelector((state) => state.cart.lines);
   const navigate = useNavigate();
 
@@ -27,7 +29,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-14">
-      <p className="text-[11px] uppercase tracking-[0.3em] text-or">Panier</p>
+      <p className="text-xs uppercase tracking-[0.3em] text-or">Panier</p>
       <h1 className="mt-3 font-serif text-4xl font-light text-ivoire">
         Votre sélection
       </h1>
@@ -39,7 +41,7 @@ export default function CartPage() {
       </ul>
 
       <div className="mt-8 flex items-baseline justify-between">
-        <p className="text-[11px] uppercase tracking-[0.25em] text-gris">
+        <p className="text-xs uppercase tracking-[0.25em] text-gris">
           Sous-total
         </p>
         <p className="font-serif text-3xl text-ivoire">{total}&nbsp;&euro;</p>

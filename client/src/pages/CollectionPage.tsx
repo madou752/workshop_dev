@@ -1,7 +1,9 @@
 import { Link, useParams } from "react-router-dom";
 import { useGetProductsQuery } from "@/api/apiSlice";
 import ProductCard from "@/components/ProductCard";
+import { ProductGridSkeleton } from "@/components/Skeletons";
 import { collections, collectionSlugs } from "@/lib/categories";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import type { ProductCategory } from "@/types/product";
 
 export default function CollectionPage() {
@@ -11,6 +13,7 @@ export default function CollectionPage() {
   const category = collectionSlugs.find((c) => c === slug) as
     | ProductCategory
     | undefined;
+  useDocumentTitle(category ? collections[category].label : "Collection introuvable");
 
   if (!category) {
     return (
@@ -36,7 +39,7 @@ export default function CollectionPage() {
           <div className="order-2 lg:order-1">
             <nav
               aria-label="Fil d'Ariane"
-              className="text-[11px] uppercase tracking-[0.25em] text-gris"
+              className="text-xs uppercase tracking-[0.25em] text-gris"
             >
               <Link to="/boutique" className="hover:text-ivoire">
                 La Collection
@@ -64,11 +67,17 @@ export default function CollectionPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16">
-        <p className="text-[11px] uppercase tracking-[0.3em] text-gris">
+        <p className="text-xs uppercase tracking-[0.3em] text-gris">
           {isLoading
-            ? "Chargement..."
+            ? "\u00a0"
             : `${items.length} flacon${items.length > 1 ? "s" : ""}`}
         </p>
+
+        {isLoading && (
+          <div className="mt-8">
+            <ProductGridSkeleton count={3} />
+          </div>
+        )}
 
         {isError && (
           <p className="mt-10 text-destructive">
@@ -92,7 +101,7 @@ export default function CollectionPage() {
 
       <section className="border-t border-ardoise">
         <div className="mx-auto max-w-6xl px-6 py-16">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+          <p className="text-xs uppercase tracking-[0.3em] text-or">
             Poursuivre
           </p>
           <div className="mt-6 grid gap-6 sm:grid-cols-2">

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
@@ -8,8 +8,17 @@ import CreditCardForm, { type CardDetails } from "@/components/CreditCardForm";
 import AirBottle from "@/components/AirBottle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import FormField from "@/components/FormField";
+import {
+  focusFirstError,
+  isFrance,
+  validateAddress,
+  validateCard,
+  validateContact,
+  type FieldErrors,
+} from "@/lib/checkout";
 import { shippingOptions } from "@/lib/shipping";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import type { ShippingMethod } from "@/types/product";
 
 type Step = 1 | 2 | 3;
@@ -29,23 +38,6 @@ const emptyCard: CardDetails = {
   cvc: "",
 };
 
-function Field({
-  id,
-  label,
-  children,
-}: {
-  id: string;
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      {children}
-    </div>
-  );
-}
-
 /** A finished step collapses to a one-line summary with an edit link. */
 function StepSummary({
   label,
@@ -59,7 +51,7 @@ function StepSummary({
   return (
     <div className="flex items-start justify-between gap-4 border-b border-ardoise py-5">
       <div>
-        <p className="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-or">
+        <p className="flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-or">
           <Check className="size-3.5" /> {label}
         </p>
         {lines.map((l) => (
@@ -80,6 +72,7 @@ function StepSummary({
 }
 
 export default function CheckoutPage() {
+  useDocumentTitle("Commande");
   const lines = useAppSelector((state) => state.cart.lines);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -99,6 +92,45 @@ export default function CheckoutPage() {
   const [hidePrices, setHidePrices] = useState(true);
   const [card, setCard] = useState(emptyCard);
   const [error, setError] = useState<string | null>(null);
+  // Field messages appear once a step has been submitted, then follow typing.
+  const [attempted, setAttempted] = useState<Record<Step, boolean>>({
+    1: false,
+    2: false,
+    3: false,
+  });
+
+  // French postcode → matching towns, from the public geo.api.gouv.fr API.
+  const [towns, setTowns] = useState({ postalCode: "", names: [] as string[] });
+  const autoFilledCity = useRef("");
+  const postal = address.postalCode.trim();
+  const lookUpTowns = isFrance(address.country) && /^\d{5}$/.test(postal);
+
+  useEffect(() => {
+    if (!lookUpTowns) return;
+    const controller = new AbortController();
+    fetch(
+      `https://geo.api.gouv.fr/communes?codePostal=${postal}&fields=nom&format=json`,
+      { signal: controller.signal },
+    )
+      .then((res) => (res.ok ? res.json() : []))
+      .then((list: { nom: string }[]) => {
+        const names = [...new Set(list.map((c) => c.nom))].sort((x, y) =>
+          x.localeCompare(y, "fr"),
+        );
+        setTowns({ postalCode: postal, names });
+        // A single town: fill it in, unless the visitor typed their own.
+        if (names.length === 1) {
+          setAddress((a) => {
+            if (a.city.trim() && a.city !== autoFilledCity.current) return a;
+            autoFilledCity.current = names[0];
+            return { ...a, city: names[0] };
+          });
+        }
+      })
+      // Offline or API down: the visitor simply types the city.
+      .catch(() => {});
+    return () => controller.abort();
+  }, [postal, lookUpTowns]);
 
   if (lines.length === 0) {
     return (
@@ -113,6 +145,29 @@ export default function CheckoutPage() {
     );
   }
 
+  const townSuggestions =
+    lookUpTowns && towns.postalCode === postal ? towns.names : [];
+
+  const stepErrors = (s: Step): FieldErrors =>
+    s === 1
+      ? validateContact(contact)
+      : s === 2
+        ? validateAddress(address)
+        : validateCard(card);
+  const errors: FieldErrors = attempted[step] ? stepErrors(step) : {};
+
+  /** Validates a step; moves on if it's complete, otherwise shows why. */
+  const submitStep = (s: Step, next: () => void) => (e: React.FormEvent) => {
+    e.preventDefault();
+    const found = stepErrors(s);
+    if (Object.keys(found).length > 0) {
+      setAttempted((a) => ({ ...a, [s]: true }));
+      focusFirstError(found);
+      return;
+    }
+    next();
+  };
+
   const shipping = shippingOptions.find((o) => o.method === method)!;
   const subtotal = lines.reduce((sum, l) => sum + l.priceEUR * l.quantity, 0);
   const total = subtotal + shipping.priceEUR;
@@ -121,11 +176,13 @@ export default function CheckoutPage() {
     e.preventDefault();
     setError(null);
 
-    const digits = card.cardNumber.replace(/\D/g, "");
-    if (digits.length < 12) {
-      setError("Ce numéro de carte semble incomplet.");
+    const cardErrors = validateCard(card);
+    if (Object.keys(cardErrors).length > 0) {
+      setAttempted((a) => ({ ...a, 3: true }));
+      focusFirstError(cardErrors);
       return;
     }
+    const digits = card.cardNumber.replace(/\D/g, "");
 
     try {
       const result = await placeOrder({
@@ -152,14 +209,14 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-14">
-      <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+      <p className="text-xs uppercase tracking-[0.3em] text-or">
         Commande
       </p>
       <h1 className="mt-3 font-serif text-4xl font-light text-ivoire">
         Finaliser votre commande
       </h1>
 
-      <ol className="mt-8 flex items-center gap-3 text-[11px] uppercase tracking-[0.2em]">
+      <ol className="mt-8 flex items-center gap-3 text-xs uppercase tracking-[0.2em]">
         {steps.map((s, i) => (
           <li key={s.id} className="flex items-center gap-3">
             <span
@@ -172,7 +229,7 @@ export default function CheckoutPage() {
               }`}
             >
               <span
-                className={`flex size-6 items-center justify-center rounded-full border text-[10px] ${
+                className={`flex size-6 items-center justify-center rounded-full border text-[11px] ${
                   s.id === step
                     ? "border-ivoire"
                     : s.id < step
@@ -190,6 +247,19 @@ export default function CheckoutPage() {
           </li>
         ))}
       </ol>
+      {/* Phones hide the step names above: say where we are in words. */}
+      <div className="mt-4 sm:hidden">
+        <p className="text-xs uppercase tracking-[0.2em] text-ivoire/70">
+          Étape {step} sur 3 &middot;{" "}
+          <span className="text-ivoire">{steps[step - 1].label}</span>
+        </p>
+        <div className="mt-2 h-px w-full bg-ivoire/15">
+          <div
+            className="h-px bg-or transition-[width] duration-500 motion-reduce:transition-none"
+            style={{ width: `${(step / 3) * 100}%` }}
+          />
+        </div>
+      </div>
 
       <div className="mt-10 grid gap-12 lg:grid-cols-[1.4fr_1fr]">
         <div>
@@ -213,38 +283,40 @@ export default function CheckoutPage() {
 
           {step === 1 && (
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setStep(2);
-              }}
+              noValidate
+              onSubmit={submitStep(1, () => setStep(2))}
               className="animate-in fade-in slide-in-from-bottom-2 space-y-5 duration-500"
             >
               <h2 className="font-serif text-2xl font-light text-ivoire">
                 Vos coordonnées
               </h2>
-              <Field id="ship-name" label="Nom complet">
-                <Input
-                  id="ship-name"
-                  required
-                  autoComplete="name"
-                  value={contact.fullName}
-                  onChange={(e) =>
-                    setContact({ ...contact, fullName: e.target.value })
-                  }
-                />
-              </Field>
-              <Field id="ship-email" label="E-mail">
-                <Input
-                  id="ship-email"
-                  required
-                  type="email"
-                  autoComplete="email"
-                  value={contact.email}
-                  onChange={(e) =>
-                    setContact({ ...contact, email: e.target.value })
-                  }
-                />
-              </Field>
+              <FormField id="ship-name" label="Nom complet" error={errors["ship-name"]}>
+                {(a11y) => (
+                  <Input
+                    id="ship-name"
+                    autoComplete="name"
+                    value={contact.fullName}
+                    onChange={(e) =>
+                      setContact({ ...contact, fullName: e.target.value })
+                    }
+                    {...a11y}
+                  />
+                )}
+              </FormField>
+              <FormField id="ship-email" label="E-mail" error={errors["ship-email"]}>
+                {(a11y) => (
+                  <Input
+                    id="ship-email"
+                    type="email"
+                    autoComplete="email"
+                    value={contact.email}
+                    onChange={(e) =>
+                      setContact({ ...contact, email: e.target.value })
+                    }
+                    {...a11y}
+                  />
+                )}
+              </FormField>
               <Button type="submit" size="lg" className="rounded-full px-8">
                 Continuer vers la livraison
               </Button>
@@ -253,64 +325,86 @@ export default function CheckoutPage() {
 
           {step === 2 && (
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setStep(3);
-              }}
+              noValidate
+              onSubmit={submitStep(2, () => setStep(3))}
               className="animate-in fade-in slide-in-from-bottom-2 space-y-5 pt-6 duration-500"
             >
               <h2 className="font-serif text-2xl font-light text-ivoire">
                 Livraison
               </h2>
-              <Field id="ship-address" label="Adresse">
-                <Input
-                  id="ship-address"
-                  required
-                  autoComplete="street-address"
-                  value={address.address}
-                  onChange={(e) =>
-                    setAddress({ ...address, address: e.target.value })
-                  }
-                />
-              </Field>
+              <FormField id="ship-address" label="Adresse" error={errors["ship-address"]}>
+                {(a11y) => (
+                  <Input
+                    id="ship-address"
+                    autoComplete="street-address"
+                    value={address.address}
+                    onChange={(e) =>
+                      setAddress({ ...address, address: e.target.value })
+                    }
+                    {...a11y}
+                  />
+                )}
+              </FormField>
               <div className="grid grid-cols-2 gap-4">
-                <Field id="ship-postal" label="Code postal">
-                  <Input
-                    id="ship-postal"
-                    required
-                    autoComplete="postal-code"
-                    value={address.postalCode}
-                    onChange={(e) =>
-                      setAddress({ ...address, postalCode: e.target.value })
-                    }
-                  />
-                </Field>
-                <Field id="ship-city" label="Ville">
-                  <Input
-                    id="ship-city"
-                    required
-                    autoComplete="address-level2"
-                    value={address.city}
-                    onChange={(e) =>
-                      setAddress({ ...address, city: e.target.value })
-                    }
-                  />
-                </Field>
-              </div>
-              <Field id="ship-country" label="Pays">
-                <Input
-                  id="ship-country"
-                  required
-                  autoComplete="country-name"
-                  value={address.country}
-                  onChange={(e) =>
-                    setAddress({ ...address, country: e.target.value })
+                <FormField id="ship-postal" label="Code postal" error={errors["ship-postal"]}>
+                  {(a11y) => (
+                    <Input
+                      id="ship-postal"
+                      autoComplete="postal-code"
+                      inputMode={isFrance(address.country) ? "numeric" : "text"}
+                      value={address.postalCode}
+                      onChange={(e) =>
+                        setAddress({ ...address, postalCode: e.target.value })
+                      }
+                      {...a11y}
+                    />
+                  )}
+                </FormField>
+                <FormField
+                  id="ship-city"
+                  label="Ville"
+                  error={errors["ship-city"]}
+                  hint={
+                    townSuggestions.length > 1
+                      ? `${townSuggestions.length} communes pour ce code postal`
+                      : undefined
                   }
-                />
-              </Field>
+                >
+                  {(a11y) => (
+                    <Input
+                      id="ship-city"
+                      autoComplete="address-level2"
+                      list="ship-city-towns"
+                      value={address.city}
+                      onChange={(e) =>
+                        setAddress({ ...address, city: e.target.value })
+                      }
+                      {...a11y}
+                    />
+                  )}
+                </FormField>
+                <datalist id="ship-city-towns">
+                  {townSuggestions.map((name) => (
+                    <option key={name} value={name} />
+                  ))}
+                </datalist>
+              </div>
+              <FormField id="ship-country" label="Pays" error={errors["ship-country"]}>
+                {(a11y) => (
+                  <Input
+                    id="ship-country"
+                    autoComplete="country-name"
+                    value={address.country}
+                    onChange={(e) =>
+                      setAddress({ ...address, country: e.target.value })
+                    }
+                    {...a11y}
+                  />
+                )}
+              </FormField>
 
               <fieldset className="space-y-3 pt-2">
-                <legend className="mb-3 text-[11px] uppercase tracking-[0.25em] text-gris">
+                <legend className="mb-3 text-xs uppercase tracking-[0.25em] text-gris">
                   Mode de livraison
                 </legend>
                 {shippingOptions.map((o) => (
@@ -361,17 +455,20 @@ export default function CheckoutPage() {
                 </label>
                 {isGift && (
                   <div className="mt-4 animate-in fade-in space-y-4 duration-300">
-                    <Field id="gift-message" label="Message manuscrit (facultatif)">
-                      <textarea
-                        id="gift-message"
-                        rows={3}
-                        maxLength={GIFT_MESSAGE_MAX}
-                        value={giftMessage}
-                        onChange={(e) => setGiftMessage(e.target.value)}
-                        placeholder="Quelques mots, calligraphiés à la main sur une carte de la Maison."
-                        className="w-full rounded-sm border border-input bg-transparent px-3 py-2 text-sm text-ivoire placeholder:text-ivoire/30 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                      />
-                    </Field>
+                    <FormField id="gift-message" label="Message manuscrit (facultatif)" error={errors["gift-message"]}>
+                      {(a11y) => (
+                        <textarea
+                          id="gift-message"
+                          rows={3}
+                          maxLength={GIFT_MESSAGE_MAX}
+                          value={giftMessage}
+                          onChange={(e) => setGiftMessage(e.target.value)}
+                          placeholder="Quelques mots, calligraphiés à la main sur une carte de la Maison."
+                          className="w-full rounded-sm border border-input bg-transparent px-3 py-2 text-sm text-ivoire placeholder:text-ivoire/30 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                          {...a11y}
+                        />
+                      )}
+                    </FormField>
                     <p className="-mt-2 text-right text-xs text-ivoire/40">
                       {giftMessage.length}/{GIFT_MESSAGE_MAX}
                     </p>
@@ -396,14 +493,15 @@ export default function CheckoutPage() {
 
           {step === 3 && (
             <form
+              noValidate
               onSubmit={handlePay}
               className="animate-in fade-in slide-in-from-bottom-2 space-y-5 pt-6 duration-500"
             >
               <h2 className="font-serif text-2xl font-light text-ivoire">
                 Paiement
               </h2>
-              <CreditCardForm value={card} onChange={setCard} />
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              <CreditCardForm value={card} onChange={setCard} errors={errors} />
+              {error && <p className="text-sm text-alerte">{error}</p>}
               <Button
                 type="submit"
                 size="lg"
@@ -412,7 +510,7 @@ export default function CheckoutPage() {
               >
                 {isLoading ? "Traitement en cours..." : `Payer ${total} €`}
               </Button>
-              <p className="text-center text-xs text-ivoire/40">
+              <p className="text-center text-xs text-ivoire/55">
                 Paiement de démonstration &mdash; aucune transaction réelle
                 n&rsquo;est effectuée. En commandant, vous acceptez nos{" "}
                 <Link
@@ -435,7 +533,7 @@ export default function CheckoutPage() {
         </div>
 
         <aside className="h-fit rounded-sm border border-ardoise bg-brume-profond p-6 lg:sticky lg:top-24">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-gris">
+          <p className="text-xs uppercase tracking-[0.25em] text-gris">
             Récapitulatif
           </p>
           <ul className="mt-4 divide-y divide-ardoise">
@@ -454,7 +552,7 @@ export default function CheckoutPage() {
                   ) : (
                     <AirBottle size="mini" className="scale-75" />
                   )}
-                  <span className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-or text-[10px] font-medium text-nuit">
+                  <span className="absolute right-1 top-1 flex size-5 items-center justify-center rounded-full bg-or text-[11px] font-medium text-nuit">
                     {line.quantity}
                   </span>
                 </div>

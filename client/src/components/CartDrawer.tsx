@@ -36,7 +36,7 @@ export default function CartDrawer() {
               <Dialog.Title className="font-serif text-2xl font-light">
                 Votre panier
               </Dialog.Title>
-              <Dialog.Description className="mt-1 text-[11px] uppercase tracking-[0.25em] text-gris">
+              <Dialog.Description className="mt-1 text-xs uppercase tracking-[0.25em] text-gris">
                 {count === 0
                   ? "Aucun flacon"
                   : `${count} flacon${count > 1 ? "s" : ""}`}
@@ -72,7 +72,7 @@ export default function CartDrawer() {
 
               <div className="border-t border-ardoise px-6 pb-6 pt-5">
                 <div className="flex items-baseline justify-between">
-                  <p className="text-[11px] uppercase tracking-[0.25em] text-gris">
+                  <p className="text-xs uppercase tracking-[0.25em] text-gris">
                     Sous-total
                   </p>
                   <p className="font-serif text-2xl">{total}&nbsp;&euro;</p>

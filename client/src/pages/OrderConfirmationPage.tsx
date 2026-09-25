@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Printer } from "lucide-react";
 import type { OrderConfirmation } from "@/types/product";
 import Certificate from "@/components/Certificate";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import { Button } from "@/components/ui/button";
 
 const longDate = (iso: string) =>
@@ -13,6 +14,7 @@ const longDate = (iso: string) =>
   });
 
 export default function OrderConfirmationPage() {
+  useDocumentTitle("Commande confirmée");
   const { orderId } = useParams<{ orderId: string }>();
   const [order, setOrder] = useState<OrderConfirmation | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -55,7 +57,7 @@ export default function OrderConfirmationPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <div className="text-center print:hidden">
-        <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+        <p className="text-xs uppercase tracking-[0.3em] text-or">
           Commande confirmée
         </p>
         <h1 className="mt-4 font-serif text-4xl font-light text-ivoire sm:text-5xl">
@@ -65,7 +67,7 @@ export default function OrderConfirmationPage() {
           Votre air est en cours de préparation. Chaque flacon voyagera
           accompagné de son certificat, que vous trouverez aussi ci-dessous.
         </p>
-        <p className="mt-4 text-[11px] uppercase tracking-[0.25em] text-gris">
+        <p className="mt-4 text-xs uppercase tracking-[0.25em] text-gris">
           Commande {order.orderId} &middot; {longDate(order.createdAt)}
         </p>
       </div>
@@ -94,7 +96,7 @@ export default function OrderConfirmationPage() {
 
       {order.gift && (
         <div className="mt-12 rounded-sm border border-or/30 px-8 py-7 text-center print:hidden">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+          <p className="text-xs uppercase tracking-[0.3em] text-or">
             Emballage cadeau
           </p>
           {order.gift.message ? (
@@ -115,7 +117,7 @@ export default function OrderConfirmationPage() {
       )}
 
       <div className="mt-12 rounded-sm border border-ardoise bg-brume-profond p-6 print:hidden">
-        <p className="text-[11px] uppercase tracking-[0.25em] text-gris">
+        <p className="text-xs uppercase tracking-[0.25em] text-gris">
           Récapitulatif
         </p>
         <ul className="mt-4 divide-y divide-ardoise text-sm">

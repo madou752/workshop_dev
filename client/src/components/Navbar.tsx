@@ -85,7 +85,7 @@ function MobileMenu() {
               </Link>
             ))}
           </nav>
-          <p className="mt-auto text-[11px] uppercase tracking-[0.35em] text-ivoire/40">
+          <p className="mt-auto text-xs uppercase tracking-[0.35em] text-ivoire/40">
             Maison d&rsquo;Air &middot; Paris
           </p>
         </Dialog.Content>

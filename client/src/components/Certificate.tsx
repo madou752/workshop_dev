@@ -22,7 +22,7 @@ export default function Certificate({
     >
       <div className="flex items-start justify-between gap-6">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-gris-fonce">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-gris-fonce">
             Certificat d&rsquo;authenticité
           </p>
           <p className="mt-3 font-serif text-2xl">{title}</p>

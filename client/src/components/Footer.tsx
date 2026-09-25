@@ -5,7 +5,7 @@ import Logo from "@/components/brand/Logo";
 import { categoryLabel } from "@/lib/categories";
 import type { ProductCategory } from "@/types/product";
 
-const heading = "text-[11px] uppercase tracking-[0.3em] text-or";
+const heading = "text-xs uppercase tracking-[0.3em] text-or";
 const link = "text-ivoire/60 transition-colors hover:text-ivoire";
 
 const maisonLinks = [
@@ -92,7 +92,7 @@ export default function Footer() {
           />
         </div>
         <div className="relative mx-auto w-full max-w-6xl px-6">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+          <p className="text-xs uppercase tracking-[0.3em] text-or">
             Édition 01
           </p>
           <p className="mt-4 max-w-xl font-serif text-4xl font-light leading-tight sm:text-5xl">
@@ -165,12 +165,12 @@ export default function Footer() {
 
         <div className="mt-16 flex flex-col gap-6 border-t border-ivoire/10 pt-8 sm:flex-row sm:items-start sm:justify-between">
           <div className="shrink-0 space-y-3">
-            <p className="text-[11px] uppercase tracking-[0.35em] text-ivoire/50">
+            <p className="text-xs uppercase tracking-[0.35em] text-ivoire/50">
               Paris &middot; 2 847 m &middot; Depuis 2026
             </p>
             <nav
               aria-label="Informations légales"
-              className="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-ivoire/50"
+              className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-ivoire/50"
             >
               {legalLinks.map((l) => (
                 <Link
@@ -183,7 +183,7 @@ export default function Footer() {
               ))}
             </nav>
           </div>
-          <p className="max-w-xl text-[11px] leading-relaxed text-ivoire/30 sm:text-right">
+          <p className="max-w-xl text-xs leading-relaxed text-ivoire/45 sm:text-right">
             &copy; {new Date().getFullYear()} Lahist&rsquo;air. Cette boutique
             est une démonstration parodique réalisée dans le cadre d&rsquo;un
             exercice de code &mdash; aucun paiement réel n&rsquo;est traité et

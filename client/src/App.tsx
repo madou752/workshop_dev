@@ -12,6 +12,7 @@ import CheckoutPage from "@/pages/CheckoutPage";
 import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
 import AboutPage from "@/pages/AboutPage";
 import LegalPage from "@/pages/LegalPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 export default function App() {
   const location = useLocation();
@@ -45,6 +46,7 @@ export default function App() {
           />
           <Route path="/maison" element={<AboutPage />} />
           <Route path="/mentions-legales" element={<LegalPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       <Footer />

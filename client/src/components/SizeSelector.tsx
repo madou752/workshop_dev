@@ -45,7 +45,7 @@ export default function SizeSelector({
             <p className="mt-3 font-serif text-lg leading-none text-ivoire">
               {size.label}
             </p>
-            <p className="mt-2 text-[10px] uppercase tracking-[0.25em] text-gris">
+            <p className="mt-2 text-[11px] uppercase tracking-[0.25em] text-gris">
               {size.volumeMl}&nbsp;ml
             </p>
             <p

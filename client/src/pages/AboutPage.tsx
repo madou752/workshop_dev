@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useGetProductsQuery } from "@/api/apiSlice";
 import { craftSteps } from "@/lib/maison";
+import { useDocumentTitle } from "@/lib/useDocumentTitle";
 import type { Product } from "@/types/product";
 
 const faqs = [
@@ -54,7 +55,7 @@ function AltitudeEntry({ product, side }: { product: Product; side: "left" | "ri
         <p className="font-serif text-lg leading-tight text-ivoire transition-colors group-hover:text-or">
           {product.name}
         </p>
-        <p className="text-[11px] uppercase tracking-[0.25em] text-gris">
+        <p className="text-xs uppercase tracking-[0.25em] text-gris">
           {product.altitude} &middot; {product.origin}
         </p>
       </div>
@@ -76,7 +77,7 @@ function AltitudeScale({ products }: { products: Product[] }) {
         {SCALE_TICKS_M.map((m) => (
           <div
             key={m}
-            className="absolute left-1/2 -translate-y-1/2 pl-3 text-[10px] tracking-[0.2em] text-ivoire/25"
+            className="absolute left-1/2 -translate-y-1/2 pl-3 text-[11px] tracking-[0.2em] text-ivoire/25"
             style={{ top: scaleTop(m) }}
           >
             {m.toLocaleString("fr-FR")} m
@@ -122,6 +123,7 @@ function AltitudeScale({ products }: { products: Product[] }) {
 }
 
 export default function AboutPage() {
+  useDocumentTitle("Notre Maison");
   const { data: products } = useGetProductsQuery();
 
   return (
@@ -133,7 +135,7 @@ export default function AboutPage() {
           style={{ backgroundImage: "url(/montverde.jpg)" }}
         />
         <div className="relative mx-auto max-w-3xl px-6 py-28 text-center">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-or">
+          <p className="text-xs uppercase tracking-[0.3em] text-or">
             Notre Maison
           </p>
           <h1 className="mt-5 font-serif text-5xl font-light leading-tight text-ivoire sm:text-6xl">
@@ -155,14 +157,14 @@ export default function AboutPage() {
           heure, une saison &mdash; puis nous refermons le flacon avant que
           l&rsquo;instant ne s&rsquo;échappe.&nbsp;&raquo;
         </p>
-        <p className="mt-6 text-[11px] uppercase tracking-[0.3em] text-or">
+        <p className="mt-6 text-xs uppercase tracking-[0.3em] text-or">
           Le manifeste de la Maison
         </p>
       </section>
 
       <section className="border-y border-ardoise bg-nuit-profond">
         <div className="mx-auto max-w-6xl px-6 py-24">
-          <p className="text-center text-[11px] uppercase tracking-[0.3em] text-or">
+          <p className="text-center text-xs uppercase tracking-[0.3em] text-or">
             Savoir-faire
           </p>
           <h2 className="mt-4 text-center font-serif text-4xl font-light text-ivoire">
@@ -186,7 +188,7 @@ export default function AboutPage() {
 
       {products && products.length > 0 && (
         <section className="mx-auto max-w-5xl px-6 py-24">
-          <p className="text-center text-[11px] uppercase tracking-[0.3em] text-or">
+          <p className="text-center text-xs uppercase tracking-[0.3em] text-or">
             Nos altitudes
           </p>
           <h2 className="mt-4 text-center font-serif text-4xl font-light text-ivoire">
