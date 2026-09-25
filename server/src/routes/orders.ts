@@ -130,7 +130,7 @@ ordersRouter.post("/", async (req, res) => {
 ordersRouter.get("/:orderId", async (req, res) => {
   const order = await findOrderById(req.params.orderId);
   if (!order) {
-    res.status(404).json({ error: "Commande introuvable" });
+    res.status(404).json({ error: "Commande introuvable." });
     return;
   }
   res.json(await toOrderConfirmation(order));

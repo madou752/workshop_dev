@@ -11,7 +11,7 @@ const link = "text-ivoire/60 transition-colors hover:text-ivoire";
 const maisonLinks = [
   { to: "/maison", label: "Notre Maison" },
   { to: "/boutique", label: "La Collection" },
-  { to: "/panier", label: "Votre Panier" },
+  { to: "/panier", label: "Votre panier" },
 ];
 
 const legalLinks = [

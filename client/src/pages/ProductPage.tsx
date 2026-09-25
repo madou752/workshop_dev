@@ -212,7 +212,7 @@ export default function ProductPage() {
               <p className={eyebrow}>{product.origin}</p>
               {product.limitedEdition && (
                 <Badge className="uppercase tracking-wide">
-                  Édition Limitée
+                  Édition limitée
                 </Badge>
               )}
             </div>

@@ -34,7 +34,7 @@ export default function CartDrawer() {
           <div className="flex items-center justify-between border-b border-ardoise px-6 py-5">
             <div>
               <Dialog.Title className="font-serif text-2xl font-light">
-                Votre Panier
+                Votre panier
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-[11px] uppercase tracking-[0.25em] text-gris">
                 {count === 0

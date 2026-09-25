@@ -34,7 +34,7 @@ export const products: Product[] = [
     slug: "gobi-desert-air",
     name: "Immobilité du Gobi",
     category: "desert",
-    tagline: "Ténu, froid, et profondément indifférent à vous.",
+    tagline: "Ténu, froid et profondément indifférent à vous.",
     description:
       "Recueilli au crépuscule dans les dunes de Khongoryn Els. Un air de haut désert, vif, presque sans humidité.",
     origin: "Khongoryn Els, Mongolie",
@@ -52,7 +52,7 @@ export const products: Product[] = [
     category: "desert",
     tagline: "L'air le plus sec de la Terre, mis en bouteille quand même.",
     description:
-      "Sourcé dans le désert non polaire le plus sec du monde. Les astronomes aiment ce ciel ; nous avons aimé cet air.",
+      "Capté dans le désert non polaire le plus sec du monde. Les astronomes aiment ce ciel ; nous avons aimé cet air.",
     origin: "Atacama, Chili",
     altitude: "2 400 m",
     composition: "79 % N₂ · 20 % O₂ · 1 % silence stellaire",
@@ -69,7 +69,7 @@ export const products: Product[] = [
     category: "city",
     tagline: "Notes d'espresso, d'ambition et de pain frais.",
     description:
-      "Capté sur une rue tranquille de la Rive Gauche avant le réveil des touristes. Ce que l'air peut approcher de plus près d'un croissant.",
+      "Capté dans une rue tranquille de la Rive Gauche, avant le réveil des touristes. L'air qui se rapproche le plus d'un croissant.",
     origin: "Paris, France",
     altitude: "35 m",
     composition: "77 % N₂ · 21 % O₂ · 2 % ambition",
@@ -83,7 +83,7 @@ export const products: Product[] = [
     slug: "tokyo-city-air",
     name: "Minuit à Shibuya",
     category: "city",
-    tagline: "Voisine du néon. Légèrement électrique.",
+    tagline: "Voisin du néon. Légèrement électrique.",
     description:
       "Mis en bouteille au-dessus du carrefour de Shibuya à minuit. Contient des notes infimes de distributeur automatique et de possible.",
     origin: "Tokyo, Japon",
@@ -101,7 +101,7 @@ export const products: Product[] = [
     category: "city",
     tagline: "Bretzel chaud, ambition froide.",
     description:
-      "Capté en milieu de matinée sur la Cinquième Avenue. Déconseillé aux cœurs sensibles, ou aux poumons fragiles.",
+      "Capté en milieu de matinée sur la Cinquième Avenue. Déconseillé aux cœurs sensibles et aux poumons fragiles.",
     origin: "New York, États-Unis",
     altitude: "10 m",
     composition: "76 % N₂ · 22 % O₂ · 2 % audace",

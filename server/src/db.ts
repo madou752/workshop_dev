@@ -17,13 +17,13 @@ try {
   await client.connect();
 } catch (error) {
   const reason = error instanceof Error ? error.message : String(error);
-  console.error("\n  Impossible de se connecter a MongoDB.");
+  console.error("\n  Impossible de se connecter à MongoDB.");
   console.error(`  ${reason}\n`);
   console.error("  Pistes :");
   console.error("  - MONGODB_URI est-il correct dans server/.env ?");
-  console.error("  - votre IP est-elle autorisee dans Atlas > Network Access ?");
-  console.error("  - erreur 'querySrv' ou 'ECONNREFUSED' : probleme de DNS,");
-  console.error("    voir la section Depannage de server/DATABASE.md\n");
+  console.error("  - votre IP est-elle autorisée dans Atlas > Network Access ?");
+  console.error("  - erreur 'querySrv' ou 'ECONNREFUSED' : problème de DNS,");
+  console.error("    voir la section Dépannage de server/DATABASE.md\n");
   process.exit(1);
 }
 

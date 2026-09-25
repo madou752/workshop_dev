@@ -5,15 +5,15 @@ import type { Product } from "@/types/product";
 
 const faqs = [
   {
-    q: "N'est-ce pas juste... de l'air ?",
-    a: "C'est de l'air avec une provenance. Un bocal d'air non traçable est une curiosité. Un bocal d'air récolté à l'aube au-dessus du Sahara, filtré trois fois et scellé sous azote est une pièce de collection.",
+    q: "N'est-ce pas simplement… de l'air ?",
+    a: "C'est de l'air avec une provenance. Un flacon d'air non traçable est une curiosité. Un flacon d'air récolté à l'aube au-dessus du Sahara, filtré trois fois et scellé sous azote est une pièce de collection.",
   },
   {
-    q: "Comment l'air est-il vraiment récolté ?",
+    q: "Comment l'air est-il vraiment récolté ?",
     a: "Nos partenaires de récolte utilisent des enceintes à vide de qualité médicale sur chaque site d'origine, à un moment de la journée choisi pour l'atmosphère caractéristique du lieu.",
   },
   {
-    q: "Puis-je ouvrir le flacon ?",
+    q: "Puis-je ouvrir le flacon ?",
     a: "Vous le pouvez, mais l'air qu'il contient est immédiatement remplacé par celui de votre pièce. Nous recommandons de l'admirer scellé.",
   },
 ];

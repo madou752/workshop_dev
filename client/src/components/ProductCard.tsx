@@ -29,7 +29,7 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
           {product.limitedEdition && (
             <Badge className="absolute left-3 top-3 uppercase tracking-wide animate-in fade-in zoom-in-50 duration-500">
-              Édition Limitée
+              Édition limitée
             </Badge>
           )}
         </div>

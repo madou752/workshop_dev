@@ -111,7 +111,7 @@ export default function HomePage() {
       {featured.length > 0 && (
         <section className="mx-auto max-w-6xl px-6 pb-20">
           <h2 className="font-serif text-2xl text-ivoire">
-            Tendance du Moment
+            Tendance du moment
           </h2>
           <div className="mt-6 grid gap-6 sm:grid-cols-3">
             {featured.map((product, i) => (

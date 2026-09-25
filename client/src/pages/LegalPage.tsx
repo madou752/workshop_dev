@@ -13,20 +13,20 @@ const sections: { id: string; title: string; body: ReactNode }[] = [
           ni numéro SIRET ni activité commerciale.
         </p>
         <p>
-          <strong>Édition et publication :</strong> l&rsquo;équipe du projet
+          <strong>Édition et publication&nbsp;:</strong> l&rsquo;équipe du projet
           Lahist&rsquo;air &mdash; conciergerie@lahistair.example.
         </p>
         <p>
-          <strong>Hébergement du site :</strong> Vercel Inc., 440 N Barranca
+          <strong>Hébergement du site&nbsp;:</strong> Vercel Inc., 440 N Barranca
           Ave #4133, Covina, CA 91723, États-Unis &mdash; vercel.com.
         </p>
         <p>
-          <strong>Hébergement des données :</strong> MongoDB Atlas, MongoDB
+          <strong>Hébergement des données&nbsp;:</strong> MongoDB Atlas, MongoDB
           Inc., 1633 Broadway, 38th Floor, New York, NY 10019, États-Unis
           &mdash; mongodb.com.
         </p>
         <p>
-          <strong>Propriété intellectuelle :</strong> les visuels des flacons
+          <strong>Propriété intellectuelle&nbsp;:</strong> les visuels des flacons
           ont été générés par intelligence artificielle pour ce projet. Les
           textes et l&rsquo;identité de la marque sont des créations de
           l&rsquo;équipe.
@@ -64,24 +64,24 @@ const sections: { id: string; title: string; body: ReactNode }[] = [
     body: (
       <>
         <p>
-          <strong>Données collectées :</strong> lors d&rsquo;une commande,
+          <strong>Données collectées&nbsp;:</strong> lors d&rsquo;une commande,
           votre nom, votre e-mail, votre adresse de livraison et, le cas
           échéant, votre message cadeau. De la carte, seuls les{" "}
           <strong>4 derniers chiffres</strong> sont conservés ; le numéro
           complet n&rsquo;est jamais enregistré.
         </p>
         <p>
-          <strong>Finalité :</strong> uniquement faire fonctionner la
+          <strong>Finalité&nbsp;:</strong> uniquement faire fonctionner la
           démonstration (afficher la confirmation et le certificat de
           commande). Les données ne sont ni vendues, ni partagées, ni
           utilisées à des fins publicitaires.
         </p>
         <p>
-          <strong>Conservation :</strong> jusqu&rsquo;à la fin du projet, puis
+          <strong>Conservation&nbsp;:</strong> jusqu&rsquo;à la fin du projet, puis
           suppression de la base de données.
         </p>
         <p>
-          <strong>Vos droits (RGPD) :</strong> vous pouvez demander
+          <strong>Vos droits (RGPD)&nbsp;:</strong> vous pouvez demander
           l&rsquo;accès, la rectification ou la suppression de vos données à
           conciergerie@lahistair.example. Vous pouvez aussi adresser une
           réclamation à la CNIL (cnil.fr).

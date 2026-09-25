@@ -10,7 +10,7 @@ productsRouter.get("/", async (_req, res) => {
 productsRouter.get("/:slug", async (req, res) => {
   const product = await findProductBySlug(req.params.slug);
   if (!product) {
-    res.status(404).json({ error: "Product not found" });
+    res.status(404).json({ error: "Produit introuvable." });
     return;
   }
   res.json(product);
