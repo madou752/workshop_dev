@@ -414,7 +414,21 @@ export default function CheckoutPage() {
               </Button>
               <p className="text-center text-xs text-ivoire/40">
                 Paiement de démonstration &mdash; aucune transaction réelle
-                n&rsquo;est effectuée.
+                n&rsquo;est effectuée. En commandant, vous acceptez nos{" "}
+                <Link
+                  to="/mentions-legales#cgv"
+                  className="underline underline-offset-4 hover:text-ivoire"
+                >
+                  conditions
+                </Link>{" "}
+                et notre{" "}
+                <Link
+                  to="/mentions-legales#confidentialite"
+                  className="underline underline-offset-4 hover:text-ivoire"
+                >
+                  politique de confidentialité
+                </Link>
+                .
               </p>
             </form>
           )}

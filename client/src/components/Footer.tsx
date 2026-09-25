@@ -14,6 +14,13 @@ const maisonLinks = [
   { to: "/panier", label: "Votre Panier" },
 ];
 
+const legalLinks = [
+  { hash: "mentions", label: "Mentions légales" },
+  { hash: "cgv", label: "CGV" },
+  { hash: "confidentialite", label: "Confidentialité" },
+  { hash: "cookies", label: "Cookies" },
+];
+
 const services = [
   "Livraison en coffret signature",
   "Emballage cadeau offert",
@@ -157,9 +164,25 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 flex flex-col gap-6 border-t border-ivoire/10 pt-8 sm:flex-row sm:items-start sm:justify-between">
-          <p className="shrink-0 text-[11px] uppercase tracking-[0.35em] text-ivoire/50">
-            Paris &middot; 2 847 m &middot; Depuis 2026
-          </p>
+          <div className="shrink-0 space-y-3">
+            <p className="text-[11px] uppercase tracking-[0.35em] text-ivoire/50">
+              Paris &middot; 2 847 m &middot; Depuis 2026
+            </p>
+            <nav
+              aria-label="Informations légales"
+              className="flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-ivoire/50"
+            >
+              {legalLinks.map((l) => (
+                <Link
+                  key={l.hash}
+                  to={`/mentions-legales#${l.hash}`}
+                  className="transition-colors hover:text-ivoire"
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
           <p className="max-w-xl text-[11px] leading-relaxed text-ivoire/30 sm:text-right">
             &copy; {new Date().getFullYear()} Lahist&rsquo;air. Cette boutique
             est une démonstration parodique réalisée dans le cadre d&rsquo;un

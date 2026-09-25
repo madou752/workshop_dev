@@ -11,15 +11,19 @@ import CartPage from "@/pages/CartPage";
 import CheckoutPage from "@/pages/CheckoutPage";
 import OrderConfirmationPage from "@/pages/OrderConfirmationPage";
 import AboutPage from "@/pages/AboutPage";
+import LegalPage from "@/pages/LegalPage";
 
 export default function App() {
   const location = useLocation();
 
-  // A new page starts at the top. Keyed on the path only, so changing a
-  // shop filter (?category=) doesn't jump the page.
+  // A new page starts at the top, or at the section a link points to
+  // (e.g. /mentions-legales#cgv). Keyed on path and hash only, so changing
+  // a shop filter (?category=) doesn't jump the page.
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
+    const target = location.hash && document.getElementById(location.hash.slice(1));
+    if (target) target.scrollIntoView();
+    else window.scrollTo(0, 0);
+  }, [location.pathname, location.hash]);
 
   return (
     <div className="flex min-h-screen flex-col bg-nuit text-ivoire">
@@ -40,6 +44,7 @@ export default function App() {
             element={<OrderConfirmationPage />}
           />
           <Route path="/maison" element={<AboutPage />} />
+          <Route path="/mentions-legales" element={<LegalPage />} />
         </Routes>
       </main>
       <Footer />
